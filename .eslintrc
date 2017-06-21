@@ -1,0 +1,44 @@
+{
+  "extends": "airbnb",
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "plugins": [
+    "import",
+    "promise",
+    "compat",
+    "react"
+  ],
+  "ecmaFeatures": {
+    "jsx": true,
+    "modules": true
+  },
+  "rules": {
+    "arrow-parens": ["off"],
+    "compat/compat": 2,
+    "consistent-return": "off",
+    "comma-dangle": "off",
+    "generator-star-spacing": "off",
+    "import/no-unresolved": ["error", { "ignore": ["electron"] }],
+    "import/no-extraneous-dependencies": "off",
+    "import/extensions": 0,
+    "no-use-before-define": "off",
+    "promise/param-names": 2,
+    "no-param-reassign": 0,
+    "class-methods-use-this": 0,
+    "react/prop-types": 0,
+    "promise/always-return": 2,
+    "promise/catch-or-return": 2,
+    "react/no-multi-comp": 0,
+    "no-return-assign": 0,
+    "promise/no-native": 0,
+    "indent": 0,
+    "react/jsx-no-bind": "off",
+    "react/prefer-stateless-function": "off",
+    "jsx-a11y/no-static-element-interactions": 0,
+    "eol-last": 0
+  }
+}

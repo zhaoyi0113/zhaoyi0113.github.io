@@ -1,0 +1,570 @@
+@import './constants.scss';
+#root {
+  width: 1368px;
+  background-color: $backgroundColor;
+}
+
+.label {
+  color: $labelColor;
+}
+
+.container {
+  background-color: $backgroundColor;
+  display: flex;
+  flex-direction: column;
+  -ms-flex-direction: column;
+  margin-left: 186px;
+  margin-right: 186px;
+}
+
+.header-container {
+  height: 45px;
+  margin-left: -186px;
+  width: 1368px;
+  background-color: $headerBkColor;
+  display: flex;
+  align-items: center;
+  .logo {
+    height: 29px;
+    width: 54px;
+    margin-left: 186px;
+  }
+}
+
+.footer-container {
+  height: 80px;
+  display: flex;
+  flex-direction: row;
+  margin-left: -186px;
+  width: 1368px;
+  background-color: $footerBkColor;
+  .logo {
+    color: white;
+    line-height: 80px;
+    vertical-align: middle;
+    margin-left: 186px;
+  }
+  .items-container {
+    display: flex;
+    flex-direction: row;
+    color: white;
+    line-height: 80px;
+    vertical-align: middle;
+    flex: 1;
+    align-items: center;
+    margin-left: 150px;
+    span {
+      margin: 0px 10px;
+      font-size: small;
+    }
+    .separator {
+      width: 2px;
+      height: 13px;
+      background-color: white;
+    }
+  }
+}
+
+.master-commerce-container {
+  display: flex;
+  flex-direction: row;
+  -ms-flex-direction: row;
+  margin-bottom: 8px;
+  height: 47px;
+  .label {
+    background-color: $titleSuggestionsBkColor;
+    display: flex;
+    flex-direction: row;
+    -ms-flex-direction: row;
+    font-size: 13px;
+    height: 47px;
+    line-height: 47px;
+    vertical-align: middle;
+    span:nth-child(1) {
+      margin-left: 10px;
+      margin-right: 3px;
+      color: white;
+    }
+    span:nth-child(2) {
+      color: #ff673d;
+      margin-right: 10px;
+    }
+  }
+}
+
+.information {
+  flex: 4;
+  line-height: 47px;
+  height: 47px;
+  vertical-align: middle;
+  display: flex;
+  background-color: white;
+  span:nth-child(1) {
+    margin-left: 10px;
+    font-size: 20px;
+    color: #3e4358;
+  }
+  .vertical-separator {
+    width: 2px;
+    height: 20px;
+    margin: 13px 5px;
+    font-size: 17px;
+    background-color: $informationColor;
+  }
+  span:nth-child(3) {
+    color: $informationColor;
+  }
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  -ms-flex-direction: column;
+  padding-top: 12px;
+  width: 996px;
+  .person-information-container {
+    display: flex;
+    flex-direction: row;
+    -ms-flex-direction: row;
+    align-items: center;
+    background-color: white;
+    height: 162px;
+    .person-image {
+      height: 126px;
+      width: 126px;
+      margin-left: 80px;
+      margin-right: 80px;
+    }
+    .person-information {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      .person-name {
+        font-size: 45px;
+        font-weight: bold;
+        font-family: Roboto-Bold;
+        color: $personNameColor;
+        width: 300px;
+      }
+      .person-name:read-only {
+        border: none;
+        background-color: white;
+      }
+      .edit-icon {
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        right: 210px;
+      }
+      .edit-icon:hover {
+        cursor: pointer;
+      }
+      .person-title {
+        font-size: 25px;
+        color: $personTitleColor;
+        margin-bottom: 15px;
+      }
+      .location-container {
+        display: flex;
+        flex-direction: row;
+        span {
+          font-size: 12px;
+          color: $personNameColor;
+        }
+        .location-icon {
+          margin-left: 20px;
+          width: 10px;
+          height: 15px;
+          margin-right: 5px;
+        }
+        .location-icon:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+  .timeline {
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
+    text-align: center;
+    color: white;
+    font-family: Roboto-Medium;
+    font-size: 14px;
+  }
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  .education-experience {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: $educationExperienceBkColor;
+    height: 41px;
+    min-height: 41px;
+    span {
+      flex: 1;
+      text-align: center;
+      font-size: 14px;
+      color: $personNameColor;
+      font-family: Roboto-Medium;
+    }
+    .separator {
+      width: 1px;
+      height: 41px;
+      background-color: $backgroundColor;
+    }
+  }
+  .previous-study {
+    height: 52px;
+    min-height: 52px;
+    display: flex;
+    flex-direction: row;
+    div {
+      display: flex;
+      align-items: center;
+      background-color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 15px;
+      margin-top: 10px;
+      margin-right: 20px;
+      margin-left: 10px;
+      .icon-arrow {
+        width: 20px;
+        height: 20px;
+        margin-left: 5px;
+      }
+      .icon-arrow:hover {
+        cursor: pointer;
+      }
+      .icon-arrow-rotate {
+        width: 30px;
+        height: 30px;
+      }
+      .rotate {
+        animation: rotate-keyframes 1s;
+      }
+      @keyframes rotate-keyframes {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .icon-arrow-rotate:hover {
+        cursor: pointer;
+      }
+    }
+    span {
+      flex: 1;
+      line-height: 52px;
+      vertical-align: middle;
+    }
+    .previous {
+      color: $previousStudyLabelColor;
+    }
+    .past {
+      margin-left: 10px;
+      color: white;
+    }
+  }
+}
+
+.dreamjob-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: white;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  width: 996px;
+  margin-bottom: 3px;
+  .label {
+    font-family: Roboto-Medium;
+    font-size: 14px;
+    color: $personNameColor;
+  }
+  .dream-job-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 472px;
+    border-bottom-style: solid;
+    border-bottom: 3px;
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+    .dream-job {
+      font-family: Roboto-Medium;
+      font-size: 35px;
+      color: $personNameColor;
+      text-align: center;
+      flex: 1;
+    }
+    .icon {
+      width: 19px;
+      height: 24px;
+      flex: 0.1;
+    }
+  }
+}
+
+.studies-container {
+  display: flex;
+  flex-direction: row;
+  // background-color: rgb(216, 221, 235);
+  .left {
+    display: flex;
+    flex-direction: column;
+    .current-label {
+      color: white;
+      margin: 10px;
+    }
+    .expand-animation-enter {
+      opacity: 1;
+      transform: translate(0, -20px);
+    }
+    .expand-animation-enter.expand-animation-enter-active {
+      transition: opacity 1s ease;
+      transform: translate(0, 0);
+      transition-property: transform, opacity;
+      transition-duration: 300ms;
+    }
+    .expand-animation-leave {
+      transform: translate(0, 0);
+    }
+    .expand-animation-leave.expand-animation-leave-active {
+      transform: translate(0, -20px);
+      transition-property: transform, opacity;
+      transition-duration: 200ms;
+    }
+  }
+  .separator {
+    width: 1px;
+    margin-left: 13px;
+    background-color: white;
+    .separator-circle {
+      // border-style: solid;
+      // border-width: 2px;
+      // width: 28px;
+      // height: 28px;
+      margin-left: -14px;
+      // color: white;
+      // background-color: rgb(216, 221, 235);
+      // border-radius: 14px;
+      // margin-top: 55px;
+      img {
+        width: 28px;
+        height: 28px;
+      }
+    }
+  }
+}
+
+.study-container {
+  display: flex;
+  flex-direction: column;
+  height: 128px;
+  min-height: 128px;
+  max-height: 128px;
+  width: 394px;
+  margin-left: 81px;
+  margin-bottom: 30px;
+  .college-info {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    align-items: center;
+    height: 91px;
+    min-height: 91px;
+    max-height: 91px;
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: $educationExperienceBkColor;
+    .college-icon {
+      width: 40px;
+      height: 40px;
+      margin-right: 20px;
+      margin-left: 10px;
+    }
+    .college-details {
+      display: flex;
+      flex-direction: column;
+      .study-name {
+        font-family: Roboto-Medium;
+        font-size: 18px;
+        color: $personNameColor;
+        margin-bottom: 5px;
+        margin-top: 10px;
+      }
+      .study-name:read-only {
+        border: none;
+        background-color: $educationExperienceBkColor;
+      }
+      .college-name {
+        font-size: 12px;
+        color: $personNameColor;
+        margin-bottom: 7px;
+      }
+      .study-date {
+        font-size: 14px;
+        color: $studyDateColor;
+        font-family: Roboto-Bold;
+        margin-bottom: 5px;
+      }
+    }
+    .edit-icon {
+      width: 15px;
+      height: 15px;
+      margin: 30px 20px 0px auto;
+      align-self: flex-start;
+    }
+    .edit-icon:hover {
+      cursor: pointer;
+    }
+  }
+  .study-footer {
+    background-color: white;
+    width: 100%;
+    height: 37px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    img {
+      height: 14px;
+      width: 8px;
+      margin-top: 11.5px;
+      margin-right: 20px;
+    }
+  }
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid $educationExperienceBkColor;
+  margin-top: 20px;
+  margin-right: 4px;
+}
+
+.current-study-container {
+  display: flex;
+  flex: row;
+  margin-bottom: 20px;
+  background-color: rgb(216, 221, 235);
+  .left {
+    display: flex;
+    flex-direction: column;
+    .label {
+      margin: 10px 0 10px 10px;
+    }
+  }
+  .next-step {
+    width: 70px;
+    height: 70px;
+    position: absolute;
+    left: 655px;
+    font-family: Roboto-Bold;
+    font-size: 14px;
+    color: white;
+    background-color: black;
+    bottom: 0px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    span {
+      width: 70px;
+      text-align: center;
+    }
+  }
+  .separator-circle {
+    padding-top: 50px;
+    width: 1px;
+    margin-left: 13px;
+    background-color: white;
+    img {
+      margin-left: -13px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+.next-step-container {
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+  .left {
+    padding-left: 81px;
+  }
+  .right {
+    margin-left: 5px;
+  }
+  .step-container {
+    display: flex;
+    margin-top: 40px;
+    border-radius: 5px;
+    background-color: $educationExperienceBkColor;
+    width: 394px;
+    box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+    flex-direction: column;
+    .step-name {
+      height: 91px;
+      display: flex;
+      flex-direction: row;
+      .info {
+        display: flex;
+        flex-direction: column;
+        .name {
+          font-size: 18px;
+          font-family: Roboto-Medium;
+          color: $personNameColor;
+          margin: 10px;
+        }
+        .description {
+          font-size: 12px;
+          color: $personNameColor;
+          margin: 10px;
+        }
+      }
+    }
+    .footer {
+      height: 37px;
+      background-color: white;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      display: flex;
+      flex-direction: row;
+      box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.75);
+      img {
+        margin-left: auto;
+        margin-right: 20px;
+        margin-top: 11.5px;
+      }
+    }
+  }
+  .separator {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    .line {
+      width: 1px;
+      height: 50px;
+      background-color: gray;
+    }
+    img {
+      margin-left: -14px;
+    }
+  }
+}
