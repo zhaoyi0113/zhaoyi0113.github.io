@@ -10,7 +10,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './'),
     publicPath: '/',
-    // filename: 'app.[hash].js'
+    //filename: 'app.[hash].js'
     filename: 'app.js'
   },
   module: {
