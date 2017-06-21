@@ -15,13 +15,7 @@ export default class App extends Component {
   render() {
     return (
       <div className="container">
-        <Header />
-        <TitleContainer />
-        <TimelineContainer />
-        <FutureStudyTimeLine />
-        <DreamJobContainer />
-        <MasterCommerce />
-        <FooterContainer />
+	Profile Home Page
       </div>
     );
   }

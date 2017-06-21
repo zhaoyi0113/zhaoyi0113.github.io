@@ -8,9 +8,10 @@ module.exports = {
     './index.jsx'
   ],
   output: {
-    path: path.resolve(__dirname, './dist/'),
+    path: path.resolve(__dirname, './'),
     publicPath: '/',
-    filename: 'app.[hash].js'
+    // filename: 'app.[hash].js'
+    filename: 'app.js'
   },
   module: {
     rules: [{
@@ -83,7 +84,7 @@ module.exports = {
     extensions: ['.js', '.jsx']
   },
   plugins: [
-    new HtmlWebpackPlugin({ hash: false, template: '../index.html' })
+    new HtmlWebpackPlugin({ hash: false, template: 'index.html', filename: './index.html' })
   ],
   node: {
     fs: 'empty',
