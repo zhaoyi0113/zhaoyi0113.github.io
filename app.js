@@ -25497,43 +25497,43 @@ module.exports = performanceNow;
 /* 415 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/893fe14628bd7ac498d550e96367e1be.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Black.ttf";
 
 /***/ }),
 /* 416 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/256aab654d3c4dd0e12fd0a32c7e8aa6.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-BlackItalic.ttf";
 
 /***/ }),
 /* 417 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/d329cc8b34667f114a95422aaad1b063.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Bold.ttf";
 
 /***/ }),
 /* 418 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/de74c60991cd63c8b922e0e665a39c7a.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Italic.ttf";
 
 /***/ }),
 /* 419 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/7b5fb88f12bec8143f00e21bc3222124.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Light.ttf";
 
 /***/ }),
 /* 420 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/fe13e4170719c2fc586501e777bde143.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Medium.ttf";
 
 /***/ }),
 /* 421 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "images/ac3f799d5bbaf5196fab15ab8de8431c.ttf";
+module.exports = __webpack_require__.p + "images/Roboto-Regular.ttf";
 
 /***/ }),
 /* 422 */

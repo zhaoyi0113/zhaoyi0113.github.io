@@ -22,7 +22,7 @@ module.exports = {
       {
         test: /\.(jpe?g|png|gif)$/i,
         use: [
-          'file-loader?hash=sha512&digest=hex&name=assets/[hash].[ext]',
+          'file-loader?hash=sha512&digest=hex&name=assets/[name].[ext]',
           'image-webpack-loader?bypassOnDebug&optimizationLevel=7&interlaced=false'
         ]
       },
@@ -50,7 +50,7 @@ module.exports = {
       // },
       {
         test: /\.(ttf|eot|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader?name=images/[hash].[ext]',
+        loader: 'file-loader?name=images/[name].[ext]',
       },
       {
         test: /\.css$/,
