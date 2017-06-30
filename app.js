@@ -17823,7 +17823,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * the web page header component
  */
 var Header = function Header() {
-  return _react2.default.createElement('div', { style: styles.root, className: 'header' });
+  return _react2.default.createElement(
+    'div',
+    { style: styles.root, className: 'header' },
+    _react2.default.createElement(_CircleButton2.default, null)
+  );
 };
 
 var _default = Header;
@@ -17835,7 +17839,7 @@ var styles = {
     display: 'flex',
     width: '100%',
     height: '450px',
-    backgroundImage: 'url(../images/billboard-bg.jpg)'
+    backgroundImage: 'url(../assets/img/billboard-bg.jpg)'
   }
 };
 ;

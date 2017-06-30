@@ -4,7 +4,11 @@ import CircleButton from './CircleButton';
 /**
  * the web page header component
  */
-const Header = () => <div style={styles.root} className="header" />;
+const Header = () => (
+  <div style={styles.root} className="header">
+    <CircleButton />
+  </div>
+);
 
 export default Header;
 
@@ -13,6 +17,6 @@ const styles = {
     display: 'flex',
     width: '100%',
     height: '450px',
-    backgroundImage: 'url(../images/billboard-bg.jpg)'
+    backgroundImage: 'url(../assets/img/billboard-bg.jpg)'
   }
 };
