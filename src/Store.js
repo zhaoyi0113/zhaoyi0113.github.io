@@ -13,7 +13,6 @@ export default class Store {
   @observable dreamJob = observable({
     job: 'CEO/Managing Directory'
   });
-
   @observable previousStudies = observable({
     extend: false,
     studies: [{

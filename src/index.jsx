@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App.jsx';
 import mobx, { useStrict } from 'mobx';
 import { Provider } from 'mobx-react';
 import Store from './Store';
+import App from './App.jsx';
 
 // use mobx strict mode to prevent modifying store state from non-action method
 useStrict(true);
