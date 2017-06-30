@@ -2,6 +2,24 @@ import { observable } from 'mobx';
 import randomWords from 'random-words';
 
 export default class Store {
+  @observable navigationItems = observable([{
+    id: 0,
+    icon: '../assets/img/nav-work-charcoal@2x.png',
+    link: ''
+  }, {
+    id: 1,
+    icon: '../assets/img/nav-about-charcoal@2x.png',
+    link: ''
+  }, {
+    id: 2,
+    icon: '../assets/img/nav-blog-charcoal@2x.png',
+    link: ''
+  }, {
+    id: 3,
+    icon: '../assets/img/nav-contact-charcoal@2x.png',
+    link: ''
+  }]);
+
   @observable userInfo = observable({
     name: 'Alex Harris',
     title: 'Student, Bachelor of Business',
@@ -45,23 +63,6 @@ export default class Store {
     college: 'Swinburne University of Technology',
     date: '2017 - 2018',
     icon: '../../assets/img/icon-swinburne-university.png'
-  });
-
-  @observable nextStep = observable({
-    studies: [{
-        id: 0,
-        name: 'Diploma of Commerce',
-        description: '2 years full-time or part-time equivalent',
-        icon: '../../assets/img/icon-swinburne-university.png'
-      },
-      {
-        id: 1,
-        name: 'Diploma of Commerce',
-        college: 'Swinburne University of Technology',
-        date: '2015 - 2016',
-        icon: '../../assets/img/icon-swinburne-university.png'
-      }
-    ]
   });
 
   @observable futureStudies = observable({

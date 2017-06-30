@@ -6,9 +6,10 @@ import Header from './components/Header';
 @observer
 export default class App extends Component {
   render() {
+    const { store } = this.props;
     return (
       <div style={styles.root}>
-        <Header />
+        <Header navigationItems={store.navigationItems} />
       </div>
     );
   }
@@ -18,6 +19,6 @@ const styles = {
   root: {
     display: 'flex',
     flexDirection: 'column',
-    width: '100%',
+    width: '100%'
   }
 };
