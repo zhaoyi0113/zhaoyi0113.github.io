@@ -1,4 +1,5 @@
 import React from 'react';
+import CircleButton from './CircleButton';
 
 /**
  * the web page header component
