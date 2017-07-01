@@ -21,7 +21,7 @@ export default class Store {
   }]);
 
   @observable userInfo = observable({
-    name: 'Alex Harris',
+    name: 'Zhao Yi',
     title: 'Student, Bachelor of Business',
     image: '../../assets/img/img-user.png',
     college: 'Swinburne University of Technology',

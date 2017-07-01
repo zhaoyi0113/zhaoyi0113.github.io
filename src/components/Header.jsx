@@ -1,6 +1,7 @@
 import React from 'react';
-import { inject, observer } from 'mobx-react';
+import { observer } from 'mobx-react';
 import CircleButton from './CircleButton';
+import UserInfo from './UserInfo';
 
 const NavigationItem = ({ icon, link }) => {
   const style = {
@@ -12,13 +13,14 @@ const NavigationItem = ({ icon, link }) => {
         src={icon}
         width="30"
         height="30"
+        alt="loading"
         style={{ display: 'block', margin: '10px auto auto auto' }}
       />
     </div>
   );
 };
 
-const Header = observer(({ navigationItems }) => {
+const Header = observer(({ navigationItems, userInfo }) => {
   console.log('naviga', navigationItems);
   return (
     <div style={styles.root} className="header">
@@ -30,6 +32,7 @@ const Header = observer(({ navigationItems }) => {
           <NavigationItem key={item.id} icon={item.icon} />
         ))}
       </div>
+      <UserInfo userInfo={userInfo} />
     </div>
   );
 });

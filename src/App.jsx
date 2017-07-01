@@ -9,7 +9,10 @@ export default class App extends Component {
     const { store } = this.props;
     return (
       <div style={styles.root}>
-        <Header navigationItems={store.navigationItems} />
+        <Header
+          navigationItems={store.navigationItems}
+          userInfo={store.userInfo}
+        />
       </div>
     );
   }
