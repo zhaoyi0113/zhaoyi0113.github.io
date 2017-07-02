@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import Header from './components/Header';
 import RecentProjects from './components/RecentProjects';
+import './styles/app.scss';
 
 @inject('store')
 @observer

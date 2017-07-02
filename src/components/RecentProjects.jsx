@@ -1,23 +1,52 @@
 import React from 'react';
 import { inject, observer } from 'mobx-react';
 
-const Project = ({ project }) => (
-<div className="project" style={styles.project} >
-  <img src={project.image} height="332" width="auto" />
-</div>);
+const Project = ({ project, onMouseEnter, onMouseLeave, className, style }) => (
+  <div
+    className={`project ${className}`}
+    style={style}
+    onMouseEnter={onMouseEnter}
+    onMouseLeave={onMouseLeave}
+  >
+    <img src={project.image} height="332" width="auto" />
+  </div>
+);
 
 @inject('store')
 @observer
 class RecentProjects extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hoverId: 0 };
+  }
   render() {
     const { recentProjects } = this.props.store;
     return (
       <div className="recent-projects" style={styles.root}>
         <div style={styles.header}>Recent Projects</div>
         <div className="projects-list" style={styles.projectsList}>
-          {recentProjects.map(project => (
-            <Project key={project.id} project={project} />
-          ))}
+          {recentProjects.map(project => {
+            const style = { ...styles.project };
+            let className = '';
+            if (project.id === this.state.hoverId) {
+              style.opacity = 0.5;
+              className = 'mouse-hover-pointer';
+            }
+            return (
+              <Project
+                key={project.id}
+                project={project}
+                style={style}
+                className={className}
+                onMouseEnter={() => {
+                  this.setState({ hoverId: project.id });
+                }}
+                onMouseLeave={() => {
+                  this.setState({ hoverId: 0 });
+                }}
+              />
+            );
+          })}
         </div>
       </div>
     );
@@ -47,6 +76,6 @@ const styles = {
   },
   project: {
     display: 'flex',
-    margin: '10px',
+    margin: '10px'
   }
 };
