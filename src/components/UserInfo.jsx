@@ -1,22 +1,53 @@
 import React from 'react';
+import '../styles/user-info.scss';
 
-const UserInfo = ({ userInfo }) => (
-  <div style={styles.userInfo}>
-    <div style={styles.userInfo.inner}>
-      <div style={styles.header}>
-        <div style={{ marginTop: 5 }}>full stack developer</div>
-      </div>
-      <div style={styles.name}>
-        {userInfo.name}
-      </div>
-      <div style={styles.footer}>
-        <div style={{ marginBottom: 5 }}>lots to see here</div>
-      </div>
-      <div style={styles.arrow}>
-      </div>
+const User = ({ userInfo }) => (
+  <div style={ styles.userInfo.inner }>
+    <div style={styles.header}>
+      <div style={{ marginTop: 5 }}>full stack developer</div>
     </div>
+    <div style={styles.name}>
+      {userInfo.name}
+    </div>
+    <div style={styles.footer}>
+      <div style={{ marginBottom: 5 }}>lots to see here</div>
+    </div>
+    <div style={styles.arrow} />
   </div>
 );
+
+const ShowMore = () => (
+  <div className="user-info-show-more" style={styles.userInfo.inner}>
+    <div style={styles.showMore.text}>
+      <div>What are you</div>
+      <div>waiting for?</div>
+    </div>
+    <div style={{ ...styles.arrow, height: 60 }} />
+  </div>
+);
+
+class UserInfo extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { showMore: false };
+  }
+  render() {
+    const { userInfo } = this.props;
+    return (
+      <div
+        style={styles.userInfo}
+        onMouseEnter={() => {
+          this.setState({ showMore: true });
+        }}
+        onMouseLeave={() => {
+          this.setState({ showMore: false });
+        }}
+      >
+        {this.state.showMore ? <ShowMore /> : <User userInfo={userInfo} />}
+      </div>
+    );
+  }
+}
 
 export default UserInfo;
 
@@ -55,7 +86,7 @@ const styles = {
     color: 'rgb(139,237,219)',
     textAlign: 'center',
     lineHeight: '100px',
-    fontSize: '50px',
+    fontSize: '50px'
   },
   footer: {
     width: '50%',
@@ -75,8 +106,12 @@ const styles = {
     height: 40
   },
 
-  hArrow :{
-    // backgroundImage: 'url(../assets/img/h-arrow.png)',
-
+  showMore: {
+    text: {
+      margin: '50px auto 0 auto',
+      color: 'rgb(139,237,219)',
+      fontFamily: 'cursive',
+      fontSize: '30px'
+    }
   }
 };
