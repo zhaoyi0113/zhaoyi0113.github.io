@@ -8,7 +8,11 @@ const NavigationItem = ({ icon, link }) => {
     ...styles.navigationItem
   };
   return (
-    <div style={style}>
+    <div
+      className="mouse-hover-pointer"
+      style={style}
+      onClick={() => window.location.href = 'mailto:zhaoyi0113@gmail.com'}
+    >
       <img
         src={icon}
         width="30"
@@ -20,21 +24,33 @@ const NavigationItem = ({ icon, link }) => {
   );
 };
 
-const Header = observer(({ navigationItems, userInfo }) => {
-  return (
-    <div style={styles.root} className="header">
-      <div style={styles.titleButtonPanel}>
-        <CircleButton />
-      </div>
-      <div style={styles.navigationBar}>
-        {navigationItems.map(item => (
-          <NavigationItem key={item.id} icon={item.icon} />
-        ))}
-      </div>
-      <UserInfo userInfo={userInfo} />
+const Header = observer(({ navigationItems, userInfo }) => (
+  <div style={styles.root} className="header">
+    <div style={styles.titleButtonPanel}>
+      <CircleButton
+        icon="../assets/img/facebook.png"
+        name="Facebook"
+        link="https://www.facebook.com/yi.zhao.35110"
+      />
+      <CircleButton
+        icon="../assets/img/linkedin-logo.png"
+        name="LinkedIn"
+        link="https://linkedin.com/in/yi-zhao-04735574"
+      />
+      <CircleButton
+        icon="../assets/img/git-logo.png"
+        name="Github"
+        link="https://github.com/zhaoyi0113"
+      />
     </div>
-  );
-});
+    <div style={styles.navigationBar}>
+      {navigationItems.map(item => (
+        <NavigationItem key={item.id} icon={item.icon} />
+      ))}
+    </div>
+    <UserInfo userInfo={userInfo} />
+  </div>
+));
 
 export default Header;
 
