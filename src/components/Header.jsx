@@ -1,17 +1,19 @@
 import React from 'react';
 import { observer } from 'mobx-react';
+import ReactTooltip from 'react-tooltip';
 import CircleButton from './CircleButton';
 import UserInfo from './UserInfo';
 
-const NavigationItem = ({ icon, link }) => {
+const NavigationItem = ({ icon, onClick, tooltip }) => {
   const style = {
     ...styles.navigationItem
   };
   return (
     <div
       className="mouse-hover-pointer"
+      data-tip={tooltip}
       style={style}
-      onClick={() => window.location.href = 'mailto:zhaoyi0113@gmail.com'}
+      onClick={onClick}
     >
       <img
         src={icon}
@@ -20,6 +22,7 @@ const NavigationItem = ({ icon, link }) => {
         alt="loading"
         style={{ display: 'block', margin: '10px auto auto auto' }}
       />
+      <ReactTooltip />
     </div>
   );
 };
@@ -45,7 +48,12 @@ const Header = observer(({ navigationItems, userInfo }) => (
     </div>
     <div style={styles.navigationBar}>
       {navigationItems.map(item => (
-        <NavigationItem key={item.id} icon={item.icon} />
+        <NavigationItem
+          key={item.id}
+          icon={item.icon}
+          tooltip={item.name}
+          onClick={item.onClick}
+        />
       ))}
     </div>
     <UserInfo userInfo={userInfo} />

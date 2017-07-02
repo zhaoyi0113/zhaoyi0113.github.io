@@ -1,26 +1,31 @@
 import { observable } from 'mobx';
-import randomWords from 'random-words';
 
 export default class Store {
   @observable navigationItems = observable([{
       id: 0,
       icon: '../assets/img/nav-work-charcoal@2x.png',
-      link: ''
+      link: '',
+      name: 'WORK',
     },
     {
       id: 1,
       icon: '../assets/img/nav-about-charcoal@2x.png',
-      link: ''
+      link: '',
+      name: 'ABOUT',
     },
     {
       id: 2,
       icon: '../assets/img/nav-blog-charcoal@2x.png',
-      link: ''
+      link: '',
+      name: 'BLOG',
+      onClick: () => window.location.assign('https://medium.com/@zhaoyi0113'),
     },
     {
       id: 3,
       icon: '../assets/img/nav-contact-charcoal@2x.png',
-      link: ''
+      link: '',
+      name: 'EMAIL',
+      onClick: () => window.location.href = 'mailto:zhaoyi0113@gmail.com'
     }
   ]);
 
