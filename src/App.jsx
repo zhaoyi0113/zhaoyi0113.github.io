@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import Header from './components/Header';
 import RecentProjects from './components/RecentProjects';
+import DevCapability from './components/DevelopCapability';
 import './styles/app.scss';
 
 @inject('store')
@@ -16,6 +17,7 @@ export default class App extends Component {
           userInfo={store.userInfo}
         />
         <RecentProjects />
+        <DevCapability />
       </div>
     );
   }

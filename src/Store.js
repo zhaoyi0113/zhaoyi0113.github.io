@@ -49,6 +49,11 @@ export default class Store {
     link: 'https://itunes.apple.com/us/app/%E6%82%A3%E8%80%85%E7%97%85%E4%BE%8B%E7%AE%A1%E7%90%86/id1219892823?ls=1&mt=8',
   }, {
     id: 4,
+    name: 'JiMi',
+    image: '../assets/img/jimi.jpeg',
+    link: 'https://itunes.apple.com/us/app/%E6%9E%81%E5%AF%86/id1071807507?mt=8',
+  }, {
+    id: 5,
     name: 'Go2Nurse-Nurse',
     image: '../assets/img/go2nurse-patient.jpg',
     link: 'https://itunes.apple.com/us/app/%E5%85%A8%E6%97%B6%E6%8A%A4%E7%90%86/id1130933950?ls=1&mt=8',

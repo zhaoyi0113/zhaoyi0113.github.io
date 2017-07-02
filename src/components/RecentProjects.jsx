@@ -7,8 +7,9 @@ const Project = ({ project, onMouseEnter, onMouseLeave, className, style }) => (
     style={style}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
+    onClick={() => window.location.assign(project.link)}
   >
-    <img src={project.image} height="332" width="auto" />
+    <img src={project.image} height="332" width="auto" alt="" />
   </div>
 );
 
@@ -48,6 +49,11 @@ class RecentProjects extends React.Component {
             );
           })}
         </div>
+        <div style={styles.bottom}>
+          <div className="mouse-hover-pointer" style={styles.bottom.text}>
+            LIKE WHAT YOU SEE? SHOW ME MORE.
+          </div>
+        </div>
       </div>
     );
   }
@@ -64,7 +70,7 @@ const styles = {
   },
   header: {
     marginTop: 40,
-    color: 'white',
+    color: 'rgb(227,221,210)',
     fontSize: '35px',
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
@@ -72,10 +78,20 @@ const styles = {
   },
   projectsList: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    overflow: 'auto'
   },
   project: {
     display: 'flex',
     margin: '10px'
+  },
+  bottom: {
+    height: 100,
+    text: {
+      color: 'rgb(16,165,135)',
+      lineHeight: '100px',
+    }
   }
 };
