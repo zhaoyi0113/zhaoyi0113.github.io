@@ -79,7 +79,7 @@ const styles = {
   projectsList: {
     display: 'flex',
     flexDirection: 'row',
-    width: '100%',
+    width: '80%',
     alignItems: 'center',
     overflow: 'auto'
   },

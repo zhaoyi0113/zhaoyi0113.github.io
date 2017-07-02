@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactTooltip from 'react-tooltip';
 
 const capabilities = [
   [
@@ -71,8 +72,18 @@ const capabilities = [
     },
     {
       id: 14,
-      name: 'Ansible',
-      image: '../assets/img/ansible-logo.png'
+      name: 'Swift',
+      image: '../assets/img/swift-logo.png'
+    },
+    {
+      id: 15,
+      name: 'Android',
+      image: '../assets/img/android-logo.png'
+    },
+    {
+      id: 16,
+      name: 'Gradle',
+      image: '../assets/img/gradle-logo.png'
     }
   ]
 ];
@@ -92,11 +103,13 @@ const DevCapability = () => (
               src={capability.image}
               width="80"
               height="80"
+              data-tip={capability.name}
             />
           ))}
         </div>
       ))}
     </div>
+    <ReactTooltip />
   </div>
 );
 
@@ -121,6 +134,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    width: '100%'
+    width: '80%',
+    alignItems: 'center',
   }
 };
