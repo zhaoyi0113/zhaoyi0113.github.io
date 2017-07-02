@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CompressionPlugin = require('compression-webpack-plugin');
+// const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   context: path.resolve(__dirname, './src'),
@@ -93,7 +94,8 @@ module.exports = {
     //   test: /app.js/,
     //   threshold: 10240,
     //   minRatio: 0.8
-    // })
+    // }),
+    new UglifyJSPlugin()
   ],
   node: {
     fs: 'empty',
