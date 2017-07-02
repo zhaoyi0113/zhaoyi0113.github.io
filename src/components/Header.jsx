@@ -57,7 +57,7 @@ const styles = {
     position: 'absolute',
     display: 'flex',
     flexDirection: 'column',
-    left: 30,
+    left: 50,
     top: 100
   },
   navigationItem: {
