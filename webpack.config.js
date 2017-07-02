@@ -1,16 +1,14 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
   context: path.resolve(__dirname, './src'),
-  entry: [
-    'babel-polyfill',
-    './index.jsx'
-  ],
+  entry: ['babel-polyfill', './index.jsx'],
   output: {
     path: path.resolve(__dirname, './'),
     publicPath: '/',
-    //filename: 'app.[hash].js'
+    // filename: 'app.[hash].js'
     filename: 'app.js'
   },
   module: {
@@ -50,7 +48,7 @@ module.exports = {
       // },
       {
         test: /\.(ttf|eot|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader?name=images/[name].[ext]',
+        loader: 'file-loader?name=images/[name].[ext]'
       },
       {
         test: /\.css$/,
@@ -84,7 +82,18 @@ module.exports = {
     extensions: ['.js', '.jsx']
   },
   plugins: [
-    new HtmlWebpackPlugin({ hash: false, template: 'index.html', filename: './index.html' })
+    new HtmlWebpackPlugin({
+      hash: false,
+      template: 'index.html',
+      filename: './index.html'
+    }),
+    new CompressionPlugin({
+      asset: '[path].gz[query]',
+      algorithm: 'gzip',
+      test: /app.js/,
+      threshold: 10240,
+      minRatio: 0.8
+    })
   ],
   node: {
     fs: 'empty',
