@@ -12,6 +12,7 @@ module.exports = {
     // filename: 'app.[hash].js'
     filename: 'app.js'
   },
+  devtool: 'source-map',
   module: {
     rules: [{
         test: /\.(jsx?)$/,

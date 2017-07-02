@@ -21,7 +21,6 @@ const NavigationItem = ({ icon, link }) => {
 };
 
 const Header = observer(({ navigationItems, userInfo }) => {
-  console.log('naviga', navigationItems);
   return (
     <div style={styles.root} className="header">
       <div style={styles.titleButtonPanel}>

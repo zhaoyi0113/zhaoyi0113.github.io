@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/user-info.scss';
 
 const User = ({ userInfo }) => (
-  <div style={ styles.userInfo.inner }>
+  <div style={styles.userInfo.inner}>
     <div style={styles.header}>
       <div style={{ marginTop: 5 }}>full stack developer</div>
     </div>

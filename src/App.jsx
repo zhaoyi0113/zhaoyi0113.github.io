@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import Header from './components/Header';
+import RecentProjects from './components/RecentProjects';
 
 @inject('store')
 @observer
@@ -13,6 +14,7 @@ export default class App extends Component {
           navigationItems={store.navigationItems}
           userInfo={store.userInfo}
         />
+        <RecentProjects />
       </div>
     );
   }
@@ -22,6 +24,7 @@ const styles = {
   root: {
     display: 'flex',
     flexDirection: 'column',
-    width: '100%'
+    width: '100%',
+    backgroundColor: 'rgb(37,37,37)',
   }
 };
