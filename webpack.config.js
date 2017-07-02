@@ -87,13 +87,13 @@ module.exports = {
       template: 'index.html',
       filename: './index.html'
     }),
-    new CompressionPlugin({
-      asset: '[path].gzip',
-      algorithm: 'gzip',
-      test: /app.js/,
-      threshold: 10240,
-      minRatio: 0.8
-    })
+    // new CompressionPlugin({
+    //   asset: '[path].gzip',
+    //   algorithm: 'gzip',
+    //   test: /app.js/,
+    //   threshold: 10240,
+    //   minRatio: 0.8
+    // })
   ],
   node: {
     fs: 'empty',
