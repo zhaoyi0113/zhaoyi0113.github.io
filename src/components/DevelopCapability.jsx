@@ -93,7 +93,7 @@ const DevCapability = () => (
     <div style={styles.title}> DEVELOPMENT CAPABILITIES </div>
     <div style={styles.capabilities}>
       {capabilities.map(caps => (
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', margin: '20px' }}>
           {caps.map(capability => (
             <img
               style={{ margin: '10 20 10 20' }}
@@ -120,7 +120,8 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    height: 400
+    height: 400,
+    marginBottom: '30px',
   },
   title: {
     fontSize: '20px',

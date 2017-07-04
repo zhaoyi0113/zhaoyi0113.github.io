@@ -80,7 +80,7 @@ const styles = {
     position: 'absolute',
     display: 'flex',
     flexDirection: 'column',
-    left: 50,
+    left: 200,
     top: 100
   },
   navigationItem: {

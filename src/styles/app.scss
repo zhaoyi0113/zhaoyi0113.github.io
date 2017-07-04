@@ -6,3 +6,21 @@
 .mouse-hover-opacity:hover {
   opacity: 0.5;
 }
+
+.recent-articles .header .text:before {
+  content: '';
+  width: 100px;
+  height: 1px;
+  background-color: rgb(120, 111, 105);
+  margin: 0 auto 20px auto;
+  display: block;
+}
+
+.article .title {
+  color: rgb(16, 165, 135);
+}
+
+.article .title:hover {
+  cursor: pointer;
+  color: rgb(122, 95, 96) !important;
+}
