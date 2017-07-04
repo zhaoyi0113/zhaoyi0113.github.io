@@ -74,7 +74,8 @@ const styles = {
     fontSize: '35px',
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
-    paddingTop: '30px'
+    paddingTop: '30px',
+    marginBottom: '20px',
   },
   projectsList: {
     display: 'flex',
