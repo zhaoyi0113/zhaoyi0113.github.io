@@ -1,33 +1,34 @@
 import React from 'react';
-import { inject, observer } from 'mobx-react';
+import {inject, observer} from 'mobx-react';
+import {Link} from 'react-router';
 
-const Project = ({ project, onMouseEnter, onMouseLeave, className, style }) => (
+const Project = ({project, onMouseEnter, onMouseLeave, className, style}) => (
   <div
     className={`project ${className}`}
     style={style}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    onClick={() => window.location.assign(project.link)}
+    onClick={() => window.location.assign (project.link)}
   >
     <img src={project.image} height="332" width="auto" alt="" />
   </div>
 );
 
-@inject('store')
+@inject ('store')
 @observer
 class RecentProjects extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hoverId: 0 };
+  constructor (props) {
+    super (props);
+    this.state = {hoverId: 0};
   }
-  render() {
-    const { recentProjects } = this.props.store;
+  render () {
+    const {recentProjects} = this.props.store;
     return (
       <div id="recent-projects" className="recent-projects" style={styles.root}>
         <div style={styles.header}>Recent Projects</div>
         <div className="projects-list" style={styles.projectsList}>
-          {recentProjects.map(project => {
-            const style = { ...styles.project };
+          {recentProjects.map (project => {
+            const style = {...styles.project};
             let className = '';
             if (project.id === this.state.hoverId) {
               style.opacity = 0.5;
@@ -40,10 +41,10 @@ class RecentProjects extends React.Component {
                 style={style}
                 className={className}
                 onMouseEnter={() => {
-                  this.setState({ hoverId: project.id });
+                  this.setState ({hoverId: project.id});
                 }}
                 onMouseLeave={() => {
-                  this.setState({ hoverId: 0 });
+                  this.setState ({hoverId: 0});
                 }}
               />
             );
@@ -51,7 +52,13 @@ class RecentProjects extends React.Component {
         </div>
         <div style={styles.bottom}>
           <div className="mouse-hover-pointer" style={styles.bottom.text}>
-            LIKE WHAT YOU SEE? SHOW ME MORE.
+            <Link
+              className="mouse-hover-pointer"
+              style={{color: 'white'}}
+              to="/pl/2"
+            >
+              LIKE WHAT YOU SEE? SHOW ME MORE.
+            </Link>
           </div>
         </div>
       </div>
@@ -66,7 +73,7 @@ const styles = {
     background: "url('../assets/img/bg-footer-stripedc.png') 0 2px repeat-x",
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   header: {
     marginTop: 40,
@@ -82,17 +89,17 @@ const styles = {
     flexDirection: 'row',
     width: '80%',
     alignItems: 'center',
-    overflow: 'auto'
+    overflow: 'auto',
   },
   project: {
     display: 'flex',
-    margin: '10px'
+    margin: '10px',
   },
   bottom: {
     height: 100,
     text: {
       color: 'rgb(16,165,135)',
       lineHeight: '100px',
-    }
-  }
+    },
+  },
 };

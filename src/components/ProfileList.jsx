@@ -13,7 +13,11 @@ const Type = ({type}) => <div style={styles.type}> - {type} - </div>;
 
 const ProjectNotes = ({project}) => (
   <aside style={styles.projectNotes}>
-    <div style={styles.projectNotes.notes}>{project.description}</div>
+    <div style={{backgroundColor: 'white', height: '100%', marginLeft: 17}}>
+      <div style={styles.projectNotes.header}> PROJECT NOTES </div>
+      <div style={styles.projectNotes.notes}>{project.description}</div>
+      <div style={styles.projectNotes.tech}> {project.tech} </div>
+    </div>
   </aside>
 );
 
@@ -24,8 +28,9 @@ const Project = ({project}) => (
     <div
       style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}
     >
-      {project.images.map (image => {
-        return <img style={styles.project.image} src={image} />;
+      {project.images.map ((image, i) => {
+        const id = i;
+        return <img key={id} style={styles.project.image} src={image} />;
       })}
     </div>
     <ProjectNotes project={project} />
@@ -42,12 +47,10 @@ export default class ProfileList extends Component {
 
   render () {
     const {recentProjects} = this.props.store;
-    console.log (this.props.params.id);
     const project = _.filter (
       recentProjects,
       o => o.id == this.props.params.id
     )[0];
-    console.log (project.images);
     return (
       <div className="profile-list" style={styles.root}>
         <Project project={project} />
@@ -88,11 +91,37 @@ const styles = {
   projectNotes: {
     width: '90%',
     alignSelf: 'center',
-    // backgroundColor: 'white',
     backgroundImage: 'url(../assets/img/note-edge.png)',
     backgroundRepeat: 'no-repeat',
     height: 200,
-    marginBottom: 100,
-    notes: {marginLeft: 17, backgroundColor: 'white', height:'100%', paddingLeft: 10}
+    display: 'flex',
+    flexDirection: 'column',
+    header: {
+      alignSelf: 'center',
+      // backgroundColor: 'white',
+      paddingTop: '10px',
+      height: 30,
+      fontSize: '1.2em',
+      fontFamily: 'brandon_gro_blackRg, MuseoSans-900, helvetica, arial, sans-serif;',
+      // width: '100%',
+      textAlign: 'center',
+      marginLeft: 17,
+      borderBottom: '1px solid rgb(226,215,189)',
+      fontWeight: 'bold',
+    },
+    notes: {
+      marginLeft: 17,
+      paddingTop: 10,
+      // backgroundColor: 'white',
+      // height: '75%',
+      paddingLeft: 10,
+      color: 'gray',
+    },
+    tech: {
+      marginLeft: 17,
+      paddingTop: 10,
+      paddingLeft: 10,
+      color: 'gray',
+    }
   },
 };
