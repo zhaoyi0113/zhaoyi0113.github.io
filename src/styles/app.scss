@@ -24,3 +24,7 @@
   cursor: pointer;
   color: rgb(122, 95, 96) !important;
 }
+
+.project-header::before {
+  background: url('/assets/img/cross-hatch-sep.png') 0 0 no-repeat;
+}
