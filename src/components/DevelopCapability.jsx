@@ -89,7 +89,7 @@ const capabilities = [
 ];
 
 const DevCapability = () => (
-  <div style={styles.root}>
+  <div style={styles.root} className="dev-capabilities">
     <div style={styles.title}> DEVELOPMENT CAPABILITIES </div>
     <div style={styles.capabilities}>
       {capabilities.map(caps => (

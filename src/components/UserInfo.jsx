@@ -1,49 +1,131 @@
 import React from 'react';
+
 import '../styles/user-info.scss';
 
-const User = ({ userInfo }) => (
+const User = ({userInfo}) => (
   <div style={styles.userInfo.inner}>
     <div style={styles.header}>
-      <div style={{ marginTop: 5 }}>full stack developer</div>
+      <div style={{
+        marginTop: 5
+      }}>full stack developer</div>
     </div>
     <div style={styles.name}>
       {userInfo.name}
     </div>
     <div style={styles.footer}>
-      <div style={{ marginBottom: 5 }}>lots to see here</div>
+      <div style={{
+        marginBottom: 5
+      }}>lots to see here</div>
     </div>
-    <div style={styles.arrow} />
+    <div style={styles.arrow}/>
   </div>
 );
 
+const smoothScroll = {
+  timer: null,
+
+  stop: function () {
+    clearTimeout(this.timer);
+  },
+
+  scrollTo: function (id, callback) {
+    let settings = {
+      duration: 1000,
+      easing: {
+        outQuint: function (x, t, b, c, d) {
+          return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+        }
+      }
+    };
+    let percentage;
+    let startTime;
+    let node = document.getElementById(id);
+    let nodeTop = node.offsetTop;
+    let nodeHeight = node.offsetHeight;
+    let body = document.body;
+    let html = document.documentElement;
+    let height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+    let windowHeight = window.innerHeight
+    let offset = window.pageYOffset;
+    let delta = nodeTop - offset;
+    let bottomScrollableY = height - windowHeight;
+    let targetY = (bottomScrollableY < delta)
+      ? bottomScrollableY - (height - nodeTop - nodeHeight + offset)
+      : delta;
+
+    startTime = Date.now();
+    percentage = 0;
+
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+
+    function step() {
+      let yScroll;
+      let elapsed = Date.now() - startTime;
+
+      if (elapsed > settings.duration) {
+        clearTimeout(this.timer);
+      }
+
+      percentage = elapsed / settings.duration;
+
+      if (percentage > 1) {
+        clearTimeout(this.timer);
+
+        if (callback) {
+          callback();
+        }
+      } else {
+        yScroll = settings
+          .easing
+          .outQuint(0, elapsed, offset, targetY, settings.duration);
+        window.scrollTo(0, yScroll);
+        this.timer = setTimeout(step, 10);
+      }
+    }
+
+    this.timer = setTimeout(step, 10);
+  }
+};
+
 const ShowMore = () => (
-  <div className="user-info-show-more" style={styles.userInfo.inner}>
+  <div
+    className="user-info-show-more"
+    onClick={() => smoothScroll.scrollTo('recent-projects')}
+    style={styles.userInfo.inner}>
     <div style={styles.showMore.text}>
       <div>What are you</div>
       <div>waiting for?</div>
     </div>
-    <div style={{ ...styles.arrow, height: 60 }} />
+    <div style={{
+      ...styles.arrow,
+      height: 60
+    }}/>
   </div>
 );
 
 class UserInfo extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { showMore: false };
+    this.state = {
+      showMore: false
+    };
   }
   render() {
-    const { userInfo } = this.props;
+    const {userInfo} = this.props;
     return (
       <div
         style={styles.userInfo}
         onMouseEnter={() => {
-          this.setState({ showMore: true });
-        }}
+        this.setState({showMore: true});
+      }}
         onMouseLeave={() => {
-          this.setState({ showMore: false });
-        }}
-      >
-        {this.state.showMore ? <ShowMore /> : <User userInfo={userInfo} />}
+        this.setState({showMore: false});
+      }}>
+        {this.state.showMore
+          ? <ShowMore/>
+          : <User userInfo={userInfo}/>}
       </div>
     );
   }

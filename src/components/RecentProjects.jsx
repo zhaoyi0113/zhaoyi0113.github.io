@@ -23,7 +23,7 @@ class RecentProjects extends React.Component {
   render() {
     const { recentProjects } = this.props.store;
     return (
-      <div className="recent-projects" style={styles.root}>
+      <div id="recent-projects" className="recent-projects" style={styles.root}>
         <div style={styles.header}>Recent Projects</div>
         <div className="projects-list" style={styles.projectsList}>
           {recentProjects.map(project => {
