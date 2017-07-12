@@ -3,29 +3,7 @@ import { observer } from 'mobx-react';
 import ReactTooltip from 'react-tooltip';
 import CircleButton from './CircleButton';
 import UserInfo from './UserInfo';
-
-const NavigationItem = ({ icon, onClick, tooltip }) => {
-  const style = {
-    ...styles.navigationItem
-  };
-  return (
-    <div
-      className="mouse-hover-pointer"
-      data-tip={tooltip}
-      style={style}
-      onClick={onClick}
-    >
-      <img
-        src={icon}
-        width="30"
-        height="30"
-        alt="loading"
-        style={{ display: 'block', margin: '10px auto auto auto' }}
-      />
-      <ReactTooltip />
-    </div>
-  );
-};
+import NavigationBar from './NavigationBar';
 
 const Header = observer(({ navigationItems, userInfo }) => (
   <div style={styles.root} className="header">
@@ -47,14 +25,7 @@ const Header = observer(({ navigationItems, userInfo }) => (
       />
     </div>
     <div style={styles.navigationBar}>
-      {navigationItems.map(item => (
-        <NavigationItem
-          key={item.id}
-          icon={item.icon}
-          tooltip={item.name}
-          onClick={item.onClick}
-        />
-      ))}
+      <NavigationBar navigationItems={navigationItems}/>
     </div>
     <UserInfo userInfo={userInfo} />
   </div>

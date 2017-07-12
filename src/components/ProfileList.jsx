@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import _ from 'lodash';
 import {inject, observer} from 'mobx-react';
 import '../styles/app.scss';
+import NavigationBar from './NavigationBar';
 
 const Header = ({title}) => (
   <div className="project-header" style={styles.header}>
@@ -53,6 +54,9 @@ export default class ProfileList extends Component {
     )[0];
     return (
       <div className="profile-list" style={styles.root}>
+        <div style={{position: 'absolute', left: '200px', top: '100px',}}>
+          <NavigationBar navigationItems={this.props.store.navigationItems} />
+        </div>
         <Project project={project} />
       </div>
     );
@@ -63,13 +67,16 @@ const styles = {
   root: {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: 'rgb(235,230,218)',
-    width: '80%',
+    alignItems: 'center',
+    width: '100%',
     margin: 'auto',
+    backgroundImage: 'url(../assets/img/bg-sketches.jpg',
   },
   project: {
     display: 'flex',
     flexDirection: 'column',
+    backgroundColor: 'rgb(235,230,218)',
+    width: '800px',
     image: {
       width: '80%',
       margin: '30px 0 50px 0',
@@ -122,6 +129,6 @@ const styles = {
       paddingTop: 10,
       paddingLeft: 10,
       color: 'gray',
-    }
+    },
   },
 };

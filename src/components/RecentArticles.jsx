@@ -45,7 +45,9 @@ const styles = {
   articles: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
+    width: '60%',
+    alignSelf: 'center',
   },
   article: {
     display: 'flex',
