@@ -6,6 +6,7 @@ import RecentProjects from './components/RecentProjects';
 import DevCapability from './components/DevelopCapability';
 import RecentArticles from './components/RecentArticles';
 import './styles/app.scss';
+import Me from './components/MeIcon';
 
 @inject('store')
 @observer
@@ -14,6 +15,7 @@ export default class App extends Component {
     const { store } = this.props;
     return (
       <div style={styles.root}>
+        <Me />
         <Header
           navigationItems={store.navigationItems}
           userInfo={store.userInfo}

@@ -21,7 +21,7 @@ const User = ({userInfo}) => (
   </div>
 );
 
-const smoothScroll = {
+export const smoothScroll = {
   timer: null,
 
   stop: function () {

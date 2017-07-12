@@ -3,6 +3,8 @@ import _ from 'lodash';
 import {inject, observer} from 'mobx-react';
 import '../styles/app.scss';
 import NavigationBar from './NavigationBar';
+import Me from './MeIcon';
+import {smoothScroll} from './UserInfo';
 
 const Header = ({title}) => (
   <div className="project-header" style={styles.header}>
@@ -79,8 +81,9 @@ export default class ProfileList extends Component {
     this.state = {pageIdx: 0, numPage: 0};
   }
 
-  componentDidMount(){
+  componentDidMount () {
     this.setState ({numPage: this.props.store.recentProjects.length});
+    smoothScroll.scrollTo ('profile-list');
   }
 
   // componentWillReceiveProps (nextProps) {
@@ -88,9 +91,10 @@ export default class ProfileList extends Component {
   // }
 
   updatePageIndex (index) {
-    console.log('change page index ', index, this.state.numPage);
+    console.log ('change page index ', index, this.state.numPage);
     if (index >= 0 && index < this.state.numPage) {
       this.setState ({pageIdx: index});
+      smoothScroll.scrollTo ('profile-list');
     }
   }
 
@@ -102,7 +106,8 @@ export default class ProfileList extends Component {
     // )[0];
     const project = recentProjects[this.state.pageIdx];
     return (
-      <div className="profile-list" style={styles.root}>
+      <div id="profile-list" className="profile-list" style={styles.root}>
+        <Me />
         <div style={{position: 'absolute', left: '200px', top: '100px'}}>
           <NavigationBar navigationItems={this.props.store.navigationItems} />
         </div>

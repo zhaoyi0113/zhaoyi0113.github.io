@@ -57,7 +57,7 @@ class RecentProjects extends React.Component {
               style={{
               color: 'white'
             }}
-              to="/pl/2">
+              to="/pl">
               LIKE WHAT YOU SEE? SHOW ME MORE.
             </Link>
           </div>
