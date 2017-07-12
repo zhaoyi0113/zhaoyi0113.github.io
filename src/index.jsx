@@ -18,5 +18,6 @@ ReactDOM.render(
     <Router history={hashHistory}>
       <Route path="/" component={App} />
       <Route path="/pl/:id" component={ProfileList} />
+      <Route path="/pl" component={ProfileList} />
     </Router>
   </Provider>, document.getElementById('root'));

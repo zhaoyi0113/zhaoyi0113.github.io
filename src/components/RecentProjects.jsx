@@ -8,55 +8,56 @@ const Project = ({project, onMouseEnter, onMouseLeave, className, style}) => (
     style={style}
     onMouseEnter={onMouseEnter}
     onMouseLeave={onMouseLeave}
-    onClick={() => window.location.assign (project.link)}
-  >
-    <img src={project.image} height="332" width="auto" alt="" />
+    onClick={() => window.location.assign(project.link)}>
+    <img src={project.image} height="332" width="auto" alt=""/>
   </div>
 );
 
-@inject ('store')
+@inject('store')
 @observer
 class RecentProjects extends React.Component {
-  constructor (props) {
-    super (props);
-    this.state = {hoverId: 0};
+  constructor(props) {
+    super(props);
+    this.state = {
+      hoverId: 0
+    };
   }
-  render () {
+  render() {
     const {recentProjects} = this.props.store;
     return (
       <div id="recent-projects" className="recent-projects" style={styles.root}>
         <div style={styles.header}>Recent Projects</div>
         <div className="projects-list" style={styles.projectsList}>
-          {recentProjects.map (project => {
-            const style = {...styles.project};
+          {recentProjects.map(project => {
+            const style = {
+              ...styles.project
+            };
             let className = '';
             if (project.id === this.state.hoverId) {
               style.opacity = 0.5;
               className = 'mouse-hover-pointer';
             }
-            return (
-              <Project
-                key={project.id}
-                project={project}
-                style={style}
-                className={className}
-                onMouseEnter={() => {
-                  this.setState ({hoverId: project.id});
-                }}
-                onMouseLeave={() => {
-                  this.setState ({hoverId: 0});
-                }}
-              />
-            );
+            return (<Project
+              key={project.id}
+              project={project}
+              style={style}
+              className={className}
+              onMouseEnter={() => {
+              this.setState({hoverId: project.id});
+            }}
+              onMouseLeave={() => {
+              this.setState({hoverId: 0});
+            }}/>);
           })}
         </div>
         <div style={styles.bottom}>
           <div className="mouse-hover-pointer" style={styles.bottom.text}>
             <Link
               className="mouse-hover-pointer"
-              style={{color: 'white'}}
-              to="/pl/2"
-            >
+              style={{
+              color: 'white'
+            }}
+              to="/pl/2">
               LIKE WHAT YOU SEE? SHOW ME MORE.
             </Link>
           </div>
@@ -73,7 +74,7 @@ const styles = {
     background: "url('../assets/img/bg-footer-stripedc.png') 0 2px repeat-x",
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   header: {
     marginTop: 40,
@@ -82,24 +83,24 @@ const styles = {
     borderTopWidth: '1px',
     borderTopStyle: 'solid',
     paddingTop: '30px',
-    marginBottom: '20px',
+    marginBottom: '20px'
   },
   projectsList: {
     display: 'flex',
     flexDirection: 'row',
     width: '60%',
     alignItems: 'center',
-    overflow: 'auto',
+    overflow: 'auto'
   },
   project: {
     display: 'flex',
-    margin: '10px',
+    margin: '10px'
   },
   bottom: {
     height: 100,
     text: {
       color: 'rgb(16,165,135)',
-      lineHeight: '100px',
-    },
-  },
+      lineHeight: '100px'
+    }
+  }
 };

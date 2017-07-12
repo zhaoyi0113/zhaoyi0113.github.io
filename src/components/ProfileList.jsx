@@ -38,26 +38,80 @@ const Project = ({project}) => (
   </div>
 );
 
+const Footer = ({numPage, pageIdx, updatePageIndex}) => {
+  const previousStyle = {...styles.footer.button, marginLeft: 'auto'};
+  const nextStyle = {...styles.footer.button, marginRight: '40px'};
+  if (numPage === 0) {
+    previousStyle.backgroundColor = 'gray';
+  } else {
+    previousStyle.backgroundColor = 'rgb(14,112,91)';
+  }
+  if (pageIdx === numPage - 1) {
+    nextStyle.backgroundColor = 'gray';
+  } else {
+    nextStyle.backgroundColor = 'rgb(14,112,91)';
+  }
+  return (
+    <div style={styles.footer}>
+      <div
+        style={previousStyle}
+        className="mouse-hover-pointer"
+        onClick={() => updatePageIndex (pageIdx - 1)}
+      >
+        Previous
+      </div>
+      <div
+        style={nextStyle}
+        className="mouse-hover-pointer"
+        onClick={() => updatePageIndex (pageIdx + 1)}
+      >
+        Next
+      </div>
+    </div>
+  );
+};
+
 @inject ('store')
 @observer
 export default class ProfileList extends Component {
   constructor (props) {
     super (props);
-    this.state = {page: 0};
+    this.state = {pageIdx: 0, numPage: 0};
+  }
+
+  componentDidMount(){
+    this.setState ({numPage: this.props.store.recentProjects.length});
+  }
+
+  // componentWillReceiveProps (nextProps) {
+  //   this.setState ({numPage: nextProps.store.recentProjects.length});
+  // }
+
+  updatePageIndex (index) {
+    console.log('change page index ', index, this.state.numPage);
+    if (index >= 0 && index < this.state.numPage) {
+      this.setState ({pageIdx: index});
+    }
   }
 
   render () {
     const {recentProjects} = this.props.store;
-    const project = _.filter (
-      recentProjects,
-      o => o.id == this.props.params.id
-    )[0];
+    // const project = _.filter (
+    //   recentProjects,
+    //   o => o.id == this.props.params.id
+    // )[0];
+    const project = recentProjects[this.state.pageIdx];
     return (
       <div className="profile-list" style={styles.root}>
-        <div style={{position: 'absolute', left: '200px', top: '100px',}}>
+        <div style={{position: 'absolute', left: '200px', top: '100px'}}>
           <NavigationBar navigationItems={this.props.store.navigationItems} />
         </div>
         <Project project={project} />
+        <Footer
+          numPage={this.state.numPage}
+          pageIdx={this.state.pageIdx}
+          updatePageIndex={this.updatePageIndex.bind (this)}
+        />
       </div>
     );
   }
@@ -71,6 +125,7 @@ const styles = {
     width: '100%',
     margin: 'auto',
     backgroundImage: 'url(../assets/img/bg-sketches.jpg',
+    paddingBottom: 50,
   },
   project: {
     display: 'flex',
@@ -103,6 +158,8 @@ const styles = {
     height: 200,
     display: 'flex',
     flexDirection: 'column',
+    borderBottom: '1px solid rgb(244,240,229)',
+    marginBottom: 40,
     header: {
       alignSelf: 'center',
       // backgroundColor: 'white',
@@ -129,6 +186,22 @@ const styles = {
       paddingTop: 10,
       paddingLeft: 10,
       color: 'gray',
+    },
+  },
+  footer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 50,
+    width: 800,
+    backgroundColor: 'rgb(235,230,218)',
+    button: {
+      width: 70,
+      height: 30,
+      color: 'white',
+      margin: 5,
+      textAlign: 'center',
+      lineHeight: '30px',
     },
   },
 };
