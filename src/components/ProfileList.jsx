@@ -43,7 +43,7 @@ const Project = ({project}) => (
 const Footer = ({numPage, pageIdx, updatePageIndex}) => {
   const previousStyle = {...styles.footer.button, marginLeft: 'auto'};
   const nextStyle = {...styles.footer.button, marginRight: '40px'};
-  if (numPage === 0) {
+  if (pageIdx === 0) {
     previousStyle.backgroundColor = 'gray';
   } else {
     previousStyle.backgroundColor = 'rgb(14,112,91)';

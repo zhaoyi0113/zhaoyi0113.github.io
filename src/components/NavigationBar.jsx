@@ -14,8 +14,8 @@ const NavigationItem = ({icon, onClick, tooltip}) => {
     >
       <img
         src={icon}
-        width="30"
-        height="30"
+        width="45"
+        height="45"
         alt="loading"
         style={{ margin: '10px 10px auto 10px'}}
       />
@@ -40,8 +40,8 @@ export default NavigationBar;
 
 const styles = {
   navigationItem: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     backgroundColor: 'rgb(244,240,229)',
     marginBottom: 1
   }
