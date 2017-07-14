@@ -54,7 +54,7 @@ export default class Store {
       id: 3,
       title: 'How to use explain to improvement MongoDB performance',
       description: 'When it comes to database design or analytic, query performance optimistic is always a hot topic. MongoDB provides a really great feather, which is “explain”, on helping DBAs to understand what’s going on inside the query command execution. After evaluating the explain, I have to say it is a really helpful and well-designed feather in terms of performance. In this article, I’d like discussing more in detailed about explain. It will help beginners on using it.',
-      link: '',
+      link: 'https://medium.com/@zhaoyi0113/how-to-use-explain-to-improvement-mongodb-performance-3adadb1228f1',
     },
   ]);
 
