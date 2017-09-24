@@ -35,6 +35,7 @@ export default class Store {
     image: '../../assets/img/img-user.png',
     college: 'Swinburne University of Technology',
     location: 'Melbourne - Australia',
+    blog: 'https://medium.com/@zhaoyi0113/',
   });
 
   @observable recentArticles = observable([{

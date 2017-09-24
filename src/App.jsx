@@ -22,7 +22,7 @@ export default class App extends Component {
         />
         <RecentProjects />
         <DevCapability />
-        <RecentArticles recentArticles={store.recentArticles} />
+        <RecentArticles recentArticles={store.recentArticles} userInfo={store.userInfo} />
       </div>
     );
   }

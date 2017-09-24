@@ -11,10 +11,13 @@ const Article = ({ article }) => (
   </div>
 );
 
-const RecentArticles = ({ recentArticles }) => (
+const RecentArticles = ({ recentArticles, userInfo }) => (
   <div style={styles.root} className="recent-articles">
     <div style={styles.header} className="header">
-      <div className="text" style={styles.header.text}>RECENT ARTICLES</div>
+      <div
+        className="text" style={styles.header.text}
+        onClick={() => window.location.assign(userInfo.blog)}
+      >RECENT ARTICLES</div>
     </div>
     <div style={styles.articles}>
       {recentArticles.map(article => (
@@ -39,14 +42,15 @@ const styles = {
       color: 'rgb(122,95,96)',
       paddingTop: '100px',
       textAlign: 'center',
-      fontSize: '20px'
+      fontSize: '20px',
+      cursor: 'pointer'
     }
   },
   articles: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    width: '60%',
+    width: '80%',
     alignSelf: 'center',
   },
   article: {
