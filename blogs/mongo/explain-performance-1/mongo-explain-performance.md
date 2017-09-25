@@ -1,9 +1,27 @@
-# 深度分析MongoDB索引性能 - Explain
+# 通过Explain来分析MongoDB查询性能
 
 最近分析了一些MongoDB的性能问题，发现MongoDB自带的Explain有很强大的分析功能。根据Explain的运行结果可以得到find语句执行过程中每一个步骤的执行时间以及扫描Document所使用得索引细节。下面我们根据几个具体的场景来分析如何利用explain了解语句执行的效率，如何通过创建索引提高find语句的性能。
 
+## MongoDB 索引
+
+每当大家谈到数据库检索性能的时候，首先提及的就是索引，对此，MongoDB也不例外。就像大家读一本书，或者查字典一样，索引是书的目录，让你方便的能够在上百页的书中找到自己感兴趣的内容。那么，有多少人了解索引的底层原理呢？相信大部分人，至少与数据库打过交道的都知道如何使用，但是牵扯到底层的技术实现可能研究过的人就不多了。在此我给大家一个MongoDB索引的底层实现原理分析，之后会根据一个具体实例来看看如何通过索引提高collection的检索性能。
+
+在没有创建任何索引的collection中，MongoDB会对查询语句执行一次整体扫描，这个过程在MongoDB中叫 `collection scan`。`collection scan` 会根据查询语句中的检索条件，与collection中每一个document进行比较，符合条件的document被选出来。可以想像，对一个包含几百万条纪录数据库表来说，查询的效率会相当底，执行时间也会很长。就像你在一个没有目录的书中查找一段相关内容一样，也许你会快速浏览这本书的每一页，才能找到想要的结果。对于有索引的collection来说，情况会好很多。由于创建了索引，MongoDB会限制比较的纪录个数，这样大大降低了执行时间。
+
+## B-tree
+
+MongoDB采用B-tree作为索引数据结构，B-tree数据结构的基本概念并不在本篇文章所要讨论的范围之内，有兴趣的读者可以查阅一些相关文章和书籍。在MongoDB里面，B-tree中的一个节点被定义成一个Bucket。Bucket中包含一个排过续的数组，数组中的元素指向document在collection中的位置。如下图所示：
+
+![Index Structure](./index-1.png)
+
+假设我们有一个叫User的数据库表，里面有两个字段，Name和Age。每条记录的位置由Row表示。在左边这张图上，每一条索引记录包括一个索引主键（Name）以及一个指向User表中记录的引用。通过这个引用，我们可以找到记录在Collection中的位置。例如：如果你想找到所有叫Carl的用户，通过引用的位置我们可以得到5，1000，1001，1004四个匹配的纪录位置。
+
+## 索引的种类
+
+MongoDB支持多种索引类型，常用的有`Single Field`， `Compound Index`， `Multikey Index`， `Text Indexes`， `Hashed Indexes`，等。这里我就不对每一种Index做过多的解释了，有兴趣的读者可以参考MongoDB官方文档：[Indexes-Basics](https://docs.mongodb.com/manual/indexes/#Indexes-Basics)。
+
 ## Explain使用方法
-本文不是一个入门级文章，关于explain的基本用法、参数等信息可以参考MongoDB的官方文档：[link to Expalin Results!](https://docs.mongodb.com/manual/reference/explain-results/)
+上面介绍了一下MongoDB索引的基本结构以及存储类型，接下来我们看看如果使用索引来提高检索性能。本文不是一个入门级文章，关于explain的基本用法、参数等信息可以参考MongoDB的官方文档：[link to Expalin Results!](https://docs.mongodb.com/manual/reference/explain-results/)
 我们知道Explain支持三种执行参数，`queryPlanner`, `executionStats` and `allPlansExecution`， 他们之间具体的区别可以参考上面列出的文档，为了进行详细的性能分析，本文不考虑使用`queryPlanner`, 而另外两个参数的执行没有太多区别，所以本文只采用`executionStats`。
 
 ## 准备数据
@@ -235,5 +253,6 @@ switched to db test
 
 然后得到的Explain如下：
 ![Explain](./explain-5.png)
+
 基本上整个执行过程的耗费时间是0ms，可以说这样的检索算是一个非常好的索引查询。
 
