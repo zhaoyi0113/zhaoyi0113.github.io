@@ -58,7 +58,7 @@ MongoDB支持多种索引类型，常用的有`Single Field`， `Compound Index
 ```
 把它保存为一个叫`user.json`的文件中，然后使用`mgenerate`插入十万条随机数据。随机数据的格式就按照上面`json`文件的定义。你可以通过调整 `--num`的参数来插入不同数量的Document。([Link to mgenerate wiki](https://github.com/rueckstiess/mtools/wiki/mgenerate))
 
-`mgenerate user.json --num 100000 --database test --collection users`
+`mgenerate user.json --num 1000000 --database test --collection users`
 
 上面的命令会像`test`数据库中`users` collection插入一百万条数据。在有些机器上，运行上面的语句可能需要等待一段时间，因为生成一百万条数据是一个比较耗时的操作，之所以生成如此多的数据是方便后面我们分析性能时，可以看到性能的显著差别。当然你也可以只生成十万条数据来进行测试，只要能够在你的机器上看到不同find语句的执行时间差异就可以。
 
@@ -216,16 +216,15 @@ switched to db test
 ![Create Index](./create-index.png)
 
 点击`Execute`按钮，创建成功后，刷新一下左边的Tree View，会看到新建的索引已经显示在界面上了，`user.age_1`。
-![Index](./tree-view-1.png)
 
 接下来我们再进行一遍刚才同样的`explain`操作：
 ![Explain](./explain-2.png)
 
 可以看到，新的结果里面包含了两次step。`IXSCAN`和`FETCH`。
-* `IXSCAN`：在explain表格中可以看到，`IXSCAN`耗时33毫秒，扫描了59279个记录，并返回了39279条记录。在Comment列看到他使用了刚刚创建的`user.age_1`索引。
+* `IXSCAN`：在explain表格中可以看到，`IXSCAN`耗时33毫秒，扫描了59279个记录，并返回了59279条记录。在Comment列看到他使用了刚刚创建的`user.age_1`索引。
 * `FETCH`：耗时118毫秒，将`IXSCAN`返回的纪录全部获取出来。
 
-两个step总共耗时151毫秒，对比，刚才的479毫秒提高了将近07%。
+两个step总共耗时151毫秒，对比，刚才的479毫秒提高了将近70%。
 
 ## 理解组合检索条件的Explain
 
@@ -234,7 +233,7 @@ switched to db test
 在刚才的检索基础上，我们加一个用户姓名条件：
 `db.users.find({'user.age': {$lt:6}, 'user.name.last':'Lee'})`。下面是这个检索语句的Explain输出：![Explain](./explain-3.png)
 
-同样是出现了两次Step，`IXSCAN`和`FETCH`，`IXSCAN`的返回结构和上次也是一样的，59279条记录。不同的是，这次`FETCH`返回了1204条记录，过滤了 `59279 - 1204 = 58075`条，也就是说浪费了58075次Document检索。为什么会出现这样的情况？我们再来检查一下检索条件，上面包括两个逻辑与关系的条件，一个是用户年龄小于6岁，另一个是用户姓名叫`Lee`。对于第一个条件，我们已经知道，符合的纪录数是59279，并且我们已经为用户年龄穿件了一条索引，所以第一个`IXSCAN`没有任何不同。但是我们并没有对用户姓名做索引，所以第二个`FETCH`语句在59279条记录的基础上在此进行一次扫描，在符合年龄的用户中过滤掉不叫`Lee`的用户。此时，你可能会意识到`58075`这个数字是如何来的。看看下面的命令输出： 
+同样是出现了两次Step，`IXSCAN`和`FETCH`，`IXSCAN`的返回结构和上次也是一样的，59279条记录。不同的是，这次`FETCH`返回了1204条记录，过滤了 `59279 - 1204 = 58075`条，也就是说浪费了58075次Document检索。为什么会出现这样的情况？我们再来检查一下检索条件，上面包括两个逻辑与关系的条件，一个是用户年龄小于6岁，另一个是用户姓名叫`Lee`。对于第一个条件，我们已经知道，符合的纪录数是59279，并且我们已经为用户年龄创建了一条索引，所以第一个`IXSCAN`没有任何不同。但是我们并没有对用户姓名做索引，所以第二个`FETCH`语句在59279条记录的基础上在此进行一次扫描，在符合年龄的用户中过滤掉不叫`Lee`的用户。此时，你可能会意识到`58075`这个数字是如何来的。看看下面的命令输出： 
 ```javascript
 > db.users.find({'user.age': {$lt: 6}, 'user.name.last': {$ne:'Lee'}}).count()
 58075
@@ -247,12 +246,46 @@ switched to db test
 然后对刚才的语句执行一次Explain，可能得到的并不是你想要的结果：
 ![Explain](./explain-4.png)
 
-可以看到这次的结果同样是两个Step，并且第一个`IXSCAN`用的Index是刚刚创建的用户姓名，并不是年龄和用户姓名的组合。这是为什么呢？原因是MongoDB不会自动组合索引，也就是说，我们需要创建一个用户年龄和姓名的组合索引。
+可以看到这次的结果同样是两个Step，并且第一个`IXSCAN`用的Index是刚刚创建的用户姓名(这一点可以通过Step Comment中看到），并不是年龄和用户姓名的组合。这是为什么呢？原因是MongoDB不会自动组合索引，我们刚才创建的只是两个独立的索引，一个是`user.age`, 一个是`user.name.last`；也就是说，我们需要创建一个用户年龄和姓名的组合索引。
 
-`db.users.find({'user.age': {$lt:6}, 'user.name.last':'Lee'})`
+`db.users.createIndex({'user.age': 1, 'user.name.last':1'})`
 
-然后得到的Explain如下：
+然后对查询语句执行Explain操作如下：
 ![Explain](./explain-5.png)
 
 基本上整个执行过程的耗费时间是0ms，可以说这样的检索算是一个非常好的索引查询。
 
+通过上面的例子大家会对组合索引有一些了解，那么组合索引和单字段索引的区别在哪里呢？
+
+对于一个基于年龄的索引来说，`{'user.age': 1}`, MongoDB对这个字段创建一个生序的索引排序，索引数据放到一个年龄轴上，会是下面显示的样子：
+![Single Index](./index-2.png)
+
+你也可以创建一个降序的索引，`{'user.age': -1 }`，但是对于单字段索引来说，生序和降序对性能没有任何影响因为MongoDB可以按照任何方向检索数据。
+
+在组合索引的情况下，结构比单字段索引要复杂一些，以上面的索引为例，`db.users.createIndex({'user.age': 1, 'user.name.last':1'})`，如下图所示：
+![Single Index](./index-3.png)
+
+浅蓝色部分是`user.age`索引字段，橘黄色指的是`user.name.last`字段，可以看到MongoDB会把索引中的字段组合在一起创建。其中有一点与单字段索引不同的是生序和降序。刚才提到在单字段索引中，升降序并不会影响检索的性能，但是在组合索引的情况下，升降序的设置对排序`sort`有很大的影响。
+
+首先是索引字段的顺序，当我们创建一个组合索引时，`{'user.age': 1, 'user.name.last':1}`, 里面的两个索引字段`user.age`和`user.name.last`的顺序要和`sort`语句中的顺序保持一致。例如：这样的排序顺序是不能被索引所覆盖到的：`.sort{'user.name.last':1, 'user.age':1}`，原因是字段的前后顺序和创建的索引不同。看一下这个查询语句的Explain结果就清楚了：`db.users.find({'user.age': {$gt: 5}, 'user.name.last': 'Lee'}).sort({'user.name.last':1, 'user.age': 1})`。找到姓名叫Lee并且年龄大于5岁，并且按照姓名和年龄生序排序，得到下面的explain输出：
+
+![排序的Explain](./explain-6.png)
+
+在Explain输出中我们可以看到共有4个执行步骤，前两个大家已经清楚了，一个是索引查询，另一个是获取查询到的纪录。那么从第三个开始就是我们的排序语句的执行步骤，生成用来排序的key，并进行排序。从排序的Comment中可以看到`dbKoda`建议我们为`user.name.last`创建索引，但是我们明明已经创建过索引，为什么还提示创建呢，其实这就是创建索引时字段的顺序在影响我们的执行结果。很显然，后面两个排序的步骤是多余的。那如果我们按照索引的顺序来执行会得到什么样的结果呢？
+
+`db.users.find({'user.age': {$gt: 5}, 'user.name.last': 'Lee'}).sort({'user.age': 1, 'user.name.last':1})`
+
+![排序的Explain](./explain-7.png)
+
+从上面的输出可以看到，只要调整一下排序的字段顺序，就可以得到高效的索引执行过程。多余的那两个步骤已经被排除在外了。
+
+再一点就是字段的升序和降序，如果在定义索引时字段都是生序，那么排序时只能用生序排序索引才能起作用，像这个排序是不会用到索引的：`.sort{'user.name.last':1, 'user.age': -1}`。有兴趣的同学可以通过上面的方法来验证一下升降序不同的情况下Explain的结果有多大的区别。
+
+## 小结
+
+经过上面的分析我想大家对MongoDB中Explain的执行过程已经有了一定的了解，在开发过程中如果遇到类似的问题我们完全有能力通过MongoDB的内置功能来解决性能瓶颈。当然这篇文章只是一个开端，具体问题可能会比本文中的例子复杂很多，在今后的文章中我还会为大家介绍更多关于MongoDB查询性能方面的最佳实践。
+
+## Reference
+[dbKoda](https://www.dbkoda.com/)
+
+[Use Indexes to Sort Query Results ](https://docs.mongodb.com/manual/tutorial/sort-results-with-indexes/)
