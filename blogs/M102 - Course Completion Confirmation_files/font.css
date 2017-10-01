@@ -1,0 +1,62 @@
+/* Copied from mongodb.com.
+ *
+ * Specifically, this is a pretty-printed subset of:
+ * https://www.mongodb.com/assets/home/COMMON-d75aede75fd7b195167c93a3051142959d9ce1033d5ad99cafcd5868bf331e39.css
+ */
+
+@font-face {
+    font-family: "Akzidenz Grotesk BQ Light";
+    src: url("../fonts/akzidenzgroteskbq_light-webfont.eot");
+    src: url("../fonts/akzidenzgroteskbq_light-webfont.eot?#iefix")
+            format("embedded-opentype"),
+        url("../fonts/akzidenzgroteskbq_light-webfont.woff2") format("woff2"),
+        url("../fonts/akzidenzgroteskbq_light-webfont.woff") format("woff"),
+        url("../fonts/akzidenzgroteskbq_light-webfont.ttf") format("truetype"),
+        url("../fonts/akzidenzgroteskbq_light-webfont.svg#akzidenz-grotesk_bq_lightRg")
+            format("svg");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Akzidenz Grotesk BQ Medium";
+    src: url("../fonts/akzidenzgroteskbq_medium-webfont.eot");
+    src: url("../fonts/akzidenzgroteskbq_medium-webfont.eot?#iefix")
+            format("embedded-opentype"),
+        url("../fonts/akzidenzgroteskbq_medium-webfont.woff2") format("woff2"),
+        url("../fonts/akzidenzgroteskbq_medium-webfont.woff") format("woff"),
+        url("../fonts/akzidenzgroteskbq_medium-webfont.ttf") format("truetype"),
+        url("../fonts/akzidenzgroteskbq_medium-webfont.svg#akzidenz-grotesk_bqmedium")
+            format("svg");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Akzidenz Grotesk";
+    src: url("../fonts/akzidgrostdreg-webfont.woff2") format("woff2"),
+        url("../fonts/akzidgrostdreg-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Akzidenz Grotesk Bold";
+    src: url("../fonts/akzidgrostdbol-webfont.woff2") format("woff2"),
+        url("../fonts/akzidgrostdbol-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Akzidenz Grotesk Super";
+    src: url("../fonts/akzidgrostdsup-webfont.woff2") format("woff2"),
+        url("../fonts/akzidgrostdsup-webfont.woff") format("woff");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
