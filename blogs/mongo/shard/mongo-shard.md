@@ -20,7 +20,7 @@
 
 本文关注于非关系型数据库中分区的技巧和性能，以MongoDB为例进行说明，在下面的章节中就围绕这一点展开讨论。
 
-# MongoDB 分片实践
+# MongoDB 分片实战
 
 MongoDB中通过Shard支持服务器水平扩展，通过Replication支持高可用（HA）。这两种技术可以分开来使用，但是在大数据库企业级应用中通常人们会把他们结合在一起使用。
 
@@ -35,4 +35,101 @@ MongoDB中通过Shard支持服务器水平扩展，通过Replication支持高可
 - shard:  每一个Shard服务器存储数据的一个子集，例如上面的用户表，每一个Shard存储一个年龄段的用户数据。
 - mongos: 处理来自应用服务器的请求，它是在应用服务器和Shard集群之间的一个接口。
 - config server: 存储shard集群的配置信息，通常部署在一个replica set上。
+
+## MongoDB Shard 性能分析
+
+### 环境准备
+
+这样的服务器构架是否合理，或者说是否能够满足数据量不断增长的需求。如果仅仅是通过理论解释恐怕很难服众，我已经信奉理论结合实际的工作方式，所以在我的文章中处理阐述理论之外，一定会有一定的示例为大家验证理论的结果。接下来我们就根据上面的例子做一套本地运行环境。由于MongoDB的便捷性，我们可以在任何一台PC上搭建这样一个数据库集群环境，并且不限制操作系统类型，任何Windows/Linux/Mac的主流版本都可以运行这样的环境。
+
+对于如何创建一个MongoDB Shard环境，网上有很多教程和命令供大家选择，创建一个有3个Mongos，每个Mongos连接若干个Shards，再加上3个config server cluster，通常需要20几台MongoDB服务器。如果一行命令一行命令的打，即便是在非常熟练的情况下，没有半个小时恐怕搭建不出来。不过幸运的是有第三方库帮我们做这个事情，大家可以查看一下`mtools`。他是用来创建各种MongoDB环境的命令行工具，代码使用`python`写的，可以通过`pip install`安装到你的环境上。具体的使用方法可以参考`https://github.com/rueckstiess/mtools/wiki/mlaunch`。也可以通过`https://github.com/zhaoyi0113/mongo-cluster-docker`上面的脚本把环境搭载Docker上面。
+
+下面的命令用来在本地创建一个MongoDB Shard集群，包含1个`mongos`路由，3个`shard` replica，每个replica有3个`shard`服务器，3个`config`服务器。这样一共创建13个进程。
+
+```
+mlaunch init --replicaset --sharded 3 --nodes 3 --config 3 --hostname localhost --port 38017 --mongos 1
+```
+
+服务器创建好以后我们可以连接到`mongos`上看一下shard状态，端口是上面制定的38017。
+
+```javascript
+mongos> sh.status()
+--- Sharding Status --- 
+  sharding version: {
+	"_id" : 1,
+	"minCompatibleVersion" : 5,
+	"currentVersion" : 6,
+	"clusterId" : ObjectId("59d30af7ab753c9949d3c2e4")
+}
+  shards:
+	{  "_id" : "shard01",  "host" : "shard01/localhost:38018,localhost:38019,localhost:38020",  "state" : 1 }
+	{  "_id" : "shard02",  "host" : "shard02/localhost:38021,localhost:38022,localhost:38023",  "state" : 1 }
+	{  "_id" : "shard03",  "host" : "shard03/localhost:38024,localhost:38025,localhost:38026",  "state" : 1 }
+  active mongoses:
+	"3.4.0" : 1
+ autosplit:
+	Currently enabled: yes
+  balancer:
+	Currently enabled:  yes
+	Currently running:  no
+		Balancer lock taken at Tue Oct 03 2017 14:58:48 GMT+1100 (AEDT) by ConfigServer:Balancer
+	Failed balancer rounds in last 5 attempts:  0
+	Migration Results for the last 24 hours: 
+		No recent migrations
+  databases:
+  ```
+
+可以看到刚才创建的shard服务器已经加入到这台mongos中了，这里有3个shard cluster，每个cluster包含3个shard服务器。除此之外，我们并没有看到关于Shard更多的信息。这是因为这台服务器集群还没有任何数据，而且也没有进行数据切分。
+
+### 数据准备
+
+首先是数据的录入，为了分析我们服务器集群的性能，需要准备大量的用户数据，幸运的是`mtools`提供了`mgenerate`方法供我们使用。他可以根据一个数据模版向MongoDB中插入任意条json数据。下面的json结构是我们在例子中需要使用的数据模版：
+
+```json
+{
+    "user": {
+        "name": {
+            "first": {"$choose": ["Liam", "Noah", "Ethan", "Mason", "Logan", "Jacob", "Lucas", "Jackson", "Aiden", "Jack", "James", "Elijah", "Luke", "William", "Michael", "Alexander", "Oliver", "Owen", "Daniel", "Gabriel", "Henry", "Matthew", "Carter", "Ryan", "Wyatt", "Andrew", "Connor", "Caleb", "Jayden", "Nathan", "Dylan", "Isaac", "Hunter", "Joshua", "Landon", "Samuel", "David", "Sebastian", "Olivia", "Emma", "Sophia", "Ava", "Isabella", "Mia", "Charlotte", "Emily", "Abigail", "Avery", "Harper", "Ella", "Madison", "Amelie", "Lily", "Chloe", "Sofia", "Evelyn", "Hannah", "Addison", "Grace", "Aubrey", "Zoey", "Aria", "Ellie", "Natalie", "Zoe", "Audrey", "Elizabeth", "Scarlett", "Layla", "Victoria", "Brooklyn", "Lucy", "Lillian", "Claire", "Nora", "Riley", "Leah"] },
+            "last": {"$choose": ["Smith", "Jones", "Williams", "Brown", "Taylor", "Davies", "Wilson", "Evans", "Thomas", "Johnson", "Roberts", "Walker", "Wright", "Robinson", "Thompson", "White", "Hughes", "Edwards", "Green", "Hall", "Wood", "Harris", "Lewis", "Martin", "Jackson", "Clarke", "Clark", "Turner", "Hill", "Scott", "Cooper", "Morris", "Ward", "Moore", "King", "Watson", "Baker" , "Harrison", "Morgan", "Patel", "Young", "Allen", "Mitchell", "James", "Anderson", "Phillips", "Lee", "Bell", "Parker", "Davis"] }
+        }, 
+        "gender": {"$choose": ["female", "male"]},
+        "age": "$number", 
+        "address": {
+            "street": {"$string": {"length": 10}}, 
+            "house_no": "$number",
+            "zip_code": {"$number": [10000, 99999]},
+            "city": {"$choose": ["Manhattan", "Brooklyn", "New Jersey", "Queens", "Bronx"]}
+        },
+        "phone_no": { "$missing" : { "percent" : 30, "ifnot" : {"$number": [1000000000, 9999999999]} } },
+        "created_at": {"$date": ["2010-01-01", "2014-07-24"] },
+        "is_active": {"$choose": [true, false]}
+    },
+    "tags": {"$array": {"of": {"label": "$string", "id": "$oid", "subtags": 
+        {"$missing": {"percent": 80, "ifnot": {"$array": ["$string", {"$number": [2, 5]}]}}}}, "number": {"$number": [0, 10] }}}
+}
+```
+
+把它保存为一个叫`user.json`的文件中，然后使用`mgenerate`插入十万条随机数据。随机数据的格式就按照上面`json`文件的定义。你可以通过调整 `--num`的参数来插入不同数量的Document。([Link to mgenerate wiki](https://github.com/rueckstiess/mtools/wiki/mgenerate))
+
+`mgenerate user.json --num 1000000 --database test --collection users --port 38017`
+
+上面的命令会像`test`数据库中`users` collection插入一百万条数据。在有些机器上，运行上面的语句可能需要等待一段时间，因为生成一百万条数据是一个比较耗时的操作，之所以生成如此多的数据是方便后面我们分析性能时，可以看到性能的显著差别。当然你也可以只生成十万条数据来进行测试，只要能够在你的机器上看到不同`find`语句的执行时间差异就可以。
+
+### 配置Shard数据库
+
+环境搭建好并且数据已经准备完毕以后，接下来的事情就是配置数据库并切分数据。我在这里不过多的强调如何使用MongoDB命令，按照下面的几条命令执行以后，我们的数据会按照用户年龄段拆分成若干个蠢哭，并分发到不同的shard cluster中。
+
+```javascript
+sh.setBalancerState(false)
+sh.enableSharding('test')
+sh.shardCollection('test.users', {'user.age':1})
+
+```
+
+# References
+[MongoDB Shard](https://docs.mongodb.com/manual/sharding/)
+
+[Shard Keys](https://docs.mongodb.com/manual/core/sharding-shard-key/)
+
+[MongoDB Docker Cluster](https://github.com/zhaoyi0113/mongo-cluster-docker)
 
