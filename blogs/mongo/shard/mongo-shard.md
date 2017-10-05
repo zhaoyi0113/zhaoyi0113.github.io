@@ -109,7 +109,7 @@ mongos> sh.status()
 
 ### 配置Shard数据库
 
-环境搭建好并且数据已经准备完毕以后，接下来的事情就是配置数据库并切分数据。为了节省篇幅，我在这里不过多的介绍如何使用MongoDB命令，按照下面的几条命令执行以后，我们的数据会按照用户年龄段拆分成若干个chunk，并分发到不同的shard cluster中。如果对下面的命令不熟悉，可以查看MongoDB官方文档关于Chunk的解释。
+环境搭建好并且数据已经准备完毕以后，接下来的事情就是配置数据库并切分数据。方便起见，我们把用户分为三组，20岁以下（junior)，20到40岁（middle）和40岁以上（senior），为了节省篇幅，我在这里不过多的介绍如何使用MongoDB命令，按照下面的几条命令执行以后，我们的数据会按照用户年龄段拆分成若干个chunk，并分发到不同的shard cluster中。如果对下面的命令不熟悉，可以查看MongoDB官方文档关于Shard Zone/Chunk的解释。
 
 ```javascript
 db.getSiblingDB('test').getCollection('users').createIndex({'user.age':1})
@@ -118,9 +118,24 @@ sh.enableSharding('test')
 sh.shardCollection('test.users', {'user.age':1})
 ```
 
-从上面的命令中可以看出，我们首先要为Shard Key创建索引，之后禁止Balancer的运行，这么做的原因是不希望在Shard Collection的过程中还运行Balancer。如果Shard collection成功的返回，你会得到下面的输出结果：`{ "collectionsharded" : "test.users", "ok" : 1 }`。
+从上面的命令中可以看出，我们首先要为Shard Key创建索引，之后禁止Balancer的运行，这么做的原因是不希望在Shard Collection的过程中还运行Balancer。之后对test库中的users collection进行按用户年龄字段的shard操作，如果Shard collection成功返回，你会得到下面的输出结果：`{ "collectionsharded" : "test.users", "ok" : 1 }`。
 
-随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards服务器。
+随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards服务器。下面对数据进行分组：
+
+```javascript
+sh.addShardTag('shard01', 'junior')
+sh.addShardTag('shard02', 'middle')
+sh.addShardTag('shard03', 'senior')
+
+sh.addTagRange('test.users', {'user\uff0eage': MinKey}, {'user\uff0eage':20}, 'junior')
+sh.addTagRange('test.users', {'user\uff0eage': 21}, {'user\uff0eage':40}, 'middle')
+sh.addTagRange('test.users', {'user\uff0eage': 41}, {'user\uff0eage': MaxKey}, 'senior')
+sh.setBalancerState(true)
+```
+
+分组之后别忘了启动Balancer。一般Balancer会运行一段时间，因为他要对分组的数据重新分配到指定的shard服务器上，你可以通过`sh.isBalancerRunning()`命令查看Balancer是否正在运行。现在可以稍事休息一下喝杯咖啡或看看窗外的风景。
+
+为了理解数据如何在不同Shard中的分配，我们有必要分析一下chunk和zone的划分：
 
 
 **关于Shard需要注意的几点**
@@ -129,6 +144,7 @@ sh.shardCollection('test.users', {'user.age':1})
   
   - 你无法在为这个collection重新选择Shard Key
   - 你不能更新Shard key的值
+
 
 
 # References
