@@ -2,54 +2,58 @@ import React from 'react';
 
 import '../styles/user-info.scss';
 
-const User = ({userInfo}) => (
+const User = ({ userInfo }) => (
   <div style={styles.userInfo.inner}>
     <div style={styles.header}>
-      <div style={{
+      <div
+style={{
         marginTop: 5
-      }}>full stack developer</div>
+      }}
+      >full stack developer</div>
     </div>
     <div style={styles.name}>
       {userInfo.name}
     </div>
     <div style={styles.footer}>
-      <div style={{
+      <div
+style={{
         marginBottom: 5
-      }}>lots to see here</div>
+      }}
+      >lots to see here</div>
     </div>
-    <div style={styles.arrow}/>
+    <div style={styles.arrow} />
   </div>
 );
 
 export const smoothScroll = {
   timer: null,
 
-  stop: function () {
+  stop () {
     clearTimeout(this.timer);
   },
 
-  scrollTo: function (id, callback) {
-    let settings = {
+  scrollTo (id, callback) {
+    const settings = {
       duration: 1000,
       easing: {
-        outQuint: function (x, t, b, c, d) {
+        outQuint (x, t, b, c, d) {
           return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
         }
       }
     };
     let percentage;
     let startTime;
-    let node = document.getElementById(id);
-    let nodeTop = node.offsetTop;
-    let nodeHeight = node.offsetHeight;
-    let body = document.body;
-    let html = document.documentElement;
-    let height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-    let windowHeight = window.innerHeight
-    let offset = window.pageYOffset;
-    let delta = nodeTop - offset;
-    let bottomScrollableY = height - windowHeight;
-    let targetY = (bottomScrollableY < delta)
+    const node = document.getElementById(id);
+    const nodeTop = node.offsetTop;
+    const nodeHeight = node.offsetHeight;
+    const body = document.body;
+    const html = document.documentElement;
+    const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+    const windowHeight = window.innerHeight;
+    const offset = window.pageYOffset;
+    const delta = nodeTop - offset;
+    const bottomScrollableY = height - windowHeight;
+    const targetY = (bottomScrollableY < delta)
       ? bottomScrollableY - (height - nodeTop - nodeHeight + offset)
       : delta;
 
@@ -62,7 +66,7 @@ export const smoothScroll = {
 
     function step() {
       let yScroll;
-      let elapsed = Date.now() - startTime;
+      const elapsed = Date.now() - startTime;
 
       if (elapsed > settings.duration) {
         clearTimeout(this.timer);
@@ -93,15 +97,18 @@ const ShowMore = () => (
   <div
     className="user-info-show-more"
     onClick={() => smoothScroll.scrollTo('recent-projects')}
-    style={styles.userInfo.inner}>
+    style={styles.userInfo.inner}
+  >
     <div style={styles.showMore.text}>
       <div>What are you</div>
       <div>waiting for?</div>
     </div>
-    <div style={{
+    <div
+style={{
       ...styles.arrow,
       height: 60
-    }}/>
+    }} 
+    />
   </div>
 );
 
@@ -113,19 +120,20 @@ class UserInfo extends React.Component {
     };
   }
   render() {
-    const {userInfo} = this.props;
+    const { userInfo } = this.props;
     return (
       <div
         style={styles.userInfo}
         onMouseEnter={() => {
-        this.setState({showMore: true});
+        this.setState({ showMore: true });
       }}
         onMouseLeave={() => {
-        this.setState({showMore: false});
-      }}>
+        this.setState({ showMore: false });
+      }}
+      >
         {this.state.showMore
-          ? <ShowMore/>
-          : <User userInfo={userInfo}/>}
+          ? <ShowMore />
+          : <User userInfo={userInfo} />}
       </div>
     );
   }
@@ -168,7 +176,7 @@ const styles = {
     color: 'rgb(139,237,219)',
     textAlign: 'center',
     lineHeight: '100px',
-    fontSize: '50px'
+    fontSize: '40px'
   },
   footer: {
     width: '50%',
