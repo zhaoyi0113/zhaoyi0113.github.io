@@ -14,19 +14,25 @@
 
 ![Replication](./replication.png)
 
+对于数据库的扩展来说，通常有两种方法，水平扩展和垂直扩展。
+
+- 垂直扩展：这种扩展方式比较传统，是针对一台服务器进行硬件升级，比如添加强大的CPU，内存或者添加磁盘空间等等。这种方式的局限性是仅限于单台服务器的扩容，尽可能的增加单台服务器的硬件配置。
+
+- 水平扩展：这种方式是目前构架上的主流形式，指的是通过增加服务器数量来进行对系统性能的扩容。在这样的构架下，单台服务器的配置并不会很高，可能是配置比较低、很廉价的PC，每台机器承载着系统的一个子集，所有机器服务器组成的集群会比单体服务器提供更强大、高效的系统容载量。这样的问题是系统构架会比单体服务器复杂，搭建、维护都要求更高的技术背景。MongoDB中的Sharding正式为了水平扩展而设计的，下面就来挤开shard面纱，探讨一下shard中不同分片的技术区别以及对数据库系统的影响。
+
 ### 分片 （Shard）
 
 这样的结构可以保证从数据库中的全部数据都会有多分拷贝，数据库的高可用可以保障。但是新的问题是如果要存储大量的数据，不论主从服务器，都需要存储全部数据库，这样检索必然会出现性能问题。可以这样讲，`Replication`只能算是分布式数据库的第一阶段。主要解决的是数据库高可用，读数据可以水平扩展，部分解决了主数据并发访问量大的问题。但是它并没有解决数据库写操作的分布式需求，此外在数据库查询时也只限制在一台服务器上，并不能支持一次查询多台数据库服务器。我们假设，如果有一种构架，可以实现数据库水平切分，把切分的数据分布存储在不同的服务器上，这样当查询请求发送到数据库时，可以在多台数据库中异步检索符合查询条件的语句，这样不但可以利用多台服务器的CPU，而且还可以充分利用不同服务器上的IO，显而易见这样的构架会大大提高查询语句的性能。但是这样的实现却给数据库设计者代码不少麻烦，首先要解决的就是事务（`Transaction`），我们知道在进行一次数据库写操作的时候，需要定一个事务操作，这样在操作失败的时候可以回滚到原始状态，那当在分布式数据库的情况下，事务需要跨越多个数据库节点以保持数据的完整性，这给开发者带来不少的麻烦。此外，在关系型数据库中存在大量表关联的情况，分布式的查询操作就会牵扯到大量的数据迁移，显然这必将降低数据库性能。但是，在非关系型数据库中，我们弱化甚至去除了事务和多表关联操作，根据CAP理论：在分布式数据库环境中，为了保持构架的扩展性，在分区容错性不变的前提下，我们必须从一致性和可用性中取其一，那么，从这一点上来理解“NoSQL数据库是为了保证A与P，而牺牲C”的说法，也是可以讲得通的。同时，根据该理论，业界有一种非常流行的认识，那就是：关系型数据库设计选择了一致性与可用性，NoSQL数据库设计则不同。其中，`HBase`选择了一致性与分区可容忍性，`Cassandra`选择了可用性与分区可容忍性。
 
 本文关注于非关系型数据库中分区的技巧和性能，以MongoDB为例进行说明，在下面的章节中就围绕这一点展开讨论。
 
-# MongoDB 分片实战
+# MongoDB 分片原理
 
 MongoDB中通过Shard支持服务器水平扩展，通过Replication支持高可用（HA）。这两种技术可以分开来使用，但是在大数据库企业级应用中通常人们会把他们结合在一起使用。
 
 ## MongoDB Sharding
 
-首先我们简要概述一下分片在MongoDB中的工作原理。通过分片这个单词我们可以看出，他的意思是将数据库表中的数据按照一定的边界分成若干组，每一组放到一台MongoDB服务器上。那用户数据举例，比如你有一张数据表存放用户基本信息，可能由于你的应用很受欢迎，短时间内就积攒了上亿个用户，这样当你在这张表上进行查询时通常会耗费比较长的时间，这样这个用户表就称为了你的应用程序的性能瓶颈。很显然的做法是对这张用户表进行拆分，假设用户表中有一个`age`年龄字段，我们先做一个简单的拆分操作，按照用户的年龄段把数据放到不同的服务器上，以20为一个单位，20岁以下的用户放到server1，20到40岁的用户放到server2，40-60岁的用户放到server3，60岁以上放到server4，后面我们会讲这样的拆分是否合理。在这个例子中，用户年龄`age`就是我们进行`Sharding`的`Shard Key`，拆分出来的`server1`, `server2`, `server3`和`server4`就是这个集群中的4太`Shard`服务器。好，Shard集群已经有了，并且数据已经拆分完好，当用户进行一次查询请求的时候我们如何向这四个Shard服务器发送请求呢？例如：我的查询条件是用户年龄在18到35岁之间，这样个查询请求应当发送到`server1`和`server2`，因为他们存储了用户年龄在40以下的数据，我们不希望这样的请求发送到另外两台服务器中因为他们并不会返回任何数据结果。此时，另外一个成员就要登场了，`mongos`，它可以被称为Shard集群中的路由器，就像我们网络环境中使用的路由器一样，它的作用就是讲请求转发到对应的目标服务器中，有了它我们刚才那条查询语句就会正确的转发给`server`和`server2`，而不会发送到`server3`和`server4`上。除了`mongos`和`shard`之外，另一个必须的成员是配置服务器，`config server`，它存储Shard集群中所有其他成员的配置信息，`mongos`会到这台`config server`查看集群中其他服务器的地址，这是一台不需要太高性能的服务器，因为它不会用来做复杂的查询计算，值得注意的是，在MongoDB3.4以后，`config server`必须是一个`replica set`。理解了上面的例子以后，一个Shard集群就可以部署成下图所示的结构：
+首先我们简要概述一下分片在MongoDB中的工作原理。通过分片这个单词我们可以看出，他的意思是将数据库表中的数据按照一定的边界分成若干组，每一组放到一台MongoDB服务器上。那用户数据举例，比如你有一张数据表存放用户基本信息，可能由于你的应用很受欢迎，短时间内就积攒了上亿个用户，这样当你在这张表上进行查询时通常会耗费比较长的时间，这样这个用户表就称为了你的应用程序的性能瓶颈。很显然的做法是对这张用户表进行拆分，假设用户表中有一个`age`年龄字段，我们先做一个简单的拆分操作，按照用户的年龄段把数据放到不同的服务器上，以20为一个单位，20岁以下的用户放到server1，20到40岁的用户放到server2，40-60岁的用户放到server3，60岁以上放到server4，后面我们会讲这样的拆分是否合理。在这个例子中，用户年龄`age`就是我们进行`Sharding`的`Shard Key`，拆分出来的`server1`, `server2`, `server3`和`server4`就是这个集群中的4个`Shard`服务器。好，Shard集群已经有了，并且数据已经拆分完好，当用户进行一次查询请求的时候我们如何向这四个Shard服务器发送请求呢？例如：我的查询条件是用户年龄在18到35岁之间，这样个查询请求应当发送到`server1`和`server2`，因为他们存储了用户年龄在40以下的数据，我们不希望这样的请求发送到另外两台服务器中因为他们并不会返回任何数据结果。此时，另外一个成员就要登场了，`mongos`，它可以被称为Shard集群中的路由器，就像我们网络环境中使用的路由器一样，它的作用就是讲请求转发到对应的目标服务器中，有了它我们刚才那条查询语句就会正确的转发给`server`和`server2`，而不会发送到`server3`和`server4`上。除了`mongos`和`shard`之外，另一个必须的成员是配置服务器，`config server`，它存储Shard集群中所有其他成员的配置信息，`mongos`会到这台`config server`查看集群中其他服务器的地址，这是一台不需要太高性能的服务器，因为它不会用来做复杂的查询计算，值得注意的是，在MongoDB3.4以后，`config server`必须是一个`replica set`。理解了上面的例子以后，一个Shard集群就可以部署成下图所示的结构：
 
 ![Shard Structure](./shard-1.png)
 
@@ -55,28 +61,14 @@ mlaunch init --replicaset --sharded 3 --nodes 3 --config 3 --hostname localhost 
 ```javascript
 mongos> sh.status()
 --- Sharding Status --- 
-  sharding version: {
-	"_id" : 1,
-	"minCompatibleVersion" : 5,
-	"currentVersion" : 6,
-	"clusterId" : ObjectId("59d30af7ab753c9949d3c2e4")
-}
+  ...
   shards:
 	{  "_id" : "shard01",  "host" : "shard01/localhost:38018,localhost:38019,localhost:38020",  "state" : 1 }
 	{  "_id" : "shard02",  "host" : "shard02/localhost:38021,localhost:38022,localhost:38023",  "state" : 1 }
 	{  "_id" : "shard03",  "host" : "shard03/localhost:38024,localhost:38025,localhost:38026",  "state" : 1 }
   active mongoses:
 	"3.4.0" : 1
- autosplit:
-	Currently enabled: yes
-  balancer:
-	Currently enabled:  yes
-	Currently running:  no
-		Balancer lock taken at Tue Oct 03 2017 14:58:48 GMT+1100 (AEDT) by ConfigServer:Balancer
-	Failed balancer rounds in last 5 attempts:  0
-	Migration Results for the last 24 hours: 
-		No recent migrations
-  databases:
+  ...
   ```
 
 可以看到刚才创建的shard服务器已经加入到这台mongos中了，这里有3个shard cluster，每个cluster包含3个shard服务器。除此之外，我们并没有看到关于Shard更多的信息。这是因为这台服务器集群还没有任何数据，而且也没有进行数据切分。
@@ -89,23 +81,17 @@ mongos> sh.status()
 {
     "user": {
         "name": {
-            "first": {"$choose": ["Liam", "Noah", "Ethan", "Mason", "Logan", "Jacob", "Lucas", "Jackson", "Aiden", "Jack", "James", "Elijah", "Luke", "William", "Michael", "Alexander", "Oliver", "Owen", "Daniel", "Gabriel", "Henry", "Matthew", "Carter", "Ryan", "Wyatt", "Andrew", "Connor", "Caleb", "Jayden", "Nathan", "Dylan", "Isaac", "Hunter", "Joshua", "Landon", "Samuel", "David", "Sebastian", "Olivia", "Emma", "Sophia", "Ava", "Isabella", "Mia", "Charlotte", "Emily", "Abigail", "Avery", "Harper", "Ella", "Madison", "Amelie", "Lily", "Chloe", "Sofia", "Evelyn", "Hannah", "Addison", "Grace", "Aubrey", "Zoey", "Aria", "Ellie", "Natalie", "Zoe", "Audrey", "Elizabeth", "Scarlett", "Layla", "Victoria", "Brooklyn", "Lucy", "Lillian", "Claire", "Nora", "Riley", "Leah"] },
-            "last": {"$choose": ["Smith", "Jones", "Williams", "Brown", "Taylor", "Davies", "Wilson", "Evans", "Thomas", "Johnson", "Roberts", "Walker", "Wright", "Robinson", "Thompson", "White", "Hughes", "Edwards", "Green", "Hall", "Wood", "Harris", "Lewis", "Martin", "Jackson", "Clarke", "Clark", "Turner", "Hill", "Scott", "Cooper", "Morris", "Ward", "Moore", "King", "Watson", "Baker" , "Harrison", "Morgan", "Patel", "Young", "Allen", "Mitchell", "James", "Anderson", "Phillips", "Lee", "Bell", "Parker", "Davis"] }
+            "first": {"$choose": ["Liam", "Aubrey", "Zoey", "Aria", "Ellie", "Natalie", "Zoe", "Audrey", "Elizabeth", "Scarlett", "Layla", "Victoria", "Brooklyn", "Lucy", "Lillian", "Claire", "Nora", "Riley", "Leah"] },
+            "last": {"$choose": ["Smith", "Patel", "Young", "Allen", "Mitchell", "James", "Anderson", "Phillips", "Lee", "Bell", "Parker", "Davis"] }
         }, 
         "gender": {"$choose": ["female", "male"]},
         "age": "$number", 
         "address": {
-            "street": {"$string": {"length": 10}}, 
-            "house_no": "$number",
             "zip_code": {"$number": [10000, 99999]},
-            "city": {"$choose": ["Manhattan", "Brooklyn", "New Jersey", "Queens", "Bronx"]}
+            "city": {"$choose": ["Beijing", "ShangHai", "GuangZhou", "ShenZhen"]}
         },
-        "phone_no": { "$missing" : { "percent" : 30, "ifnot" : {"$number": [1000000000, 9999999999]} } },
-        "created_at": {"$date": ["2010-01-01", "2014-07-24"] },
-        "is_active": {"$choose": [true, false]}
-    },
-    "tags": {"$array": {"of": {"label": "$string", "id": "$oid", "subtags": 
-        {"$missing": {"percent": 80, "ifnot": {"$array": ["$string", {"$number": [2, 5]}]}}}}, "number": {"$number": [0, 10] }}}
+        "created_at": {"$date": ["2010-01-01", "2014-07-24"] }
+    }
 }
 ```
 
@@ -114,6 +100,12 @@ mongos> sh.status()
 `mgenerate user.json --num 1000000 --database test --collection users --port 38017`
 
 上面的命令会像`test`数据库中`users` collection插入一百万条数据。在有些机器上，运行上面的语句可能需要等待一段时间，因为生成一百万条数据是一个比较耗时的操作，之所以生成如此多的数据是方便后面我们分析性能时，可以看到性能的显著差别。当然你也可以只生成十万条数据来进行测试，只要能够在你的机器上看到不同`find`语句的执行时间差异就可以。
+
+插入完数据之后，我们想看一下刚刚插入的数据在服务器集群中是如何分配的。通常，可以通过`sh.status()` MongoDB shell命令查看。不过对于一套全新的集群服务器，再没有shard任何collection之前，我们是看不到太多有用的信息。不过，可以通过explain一条查询语句来看一下数据的分布情况。这里不得不强调一下在进行数据性能分析时一个好的IDE对工作效率有多大的影响，我选择[dbKoda](www.dbkoda.com)作为MongoDB的IDE主要原因是他是目前唯一一款对MongoDB Shell的完美演绎，对于MongoDB Shell命令不太熟悉的开发人员来说尤为重要，幸运的是这款IDE还支持Windows/Mac/Linux三种平台，基本上覆盖了绝大多数操作系统版本。下面是对刚才建立的一百万条collection的一次find的explain结果。（对于Explain的应用，大家可以参考我的另外一片文章：[如何通过MongoDB自带的Explain功能提高检索性能？](https://mp.weixin.qq.com/s/xQniuEaUI9g3ICHsI66NRw))
+
+![Explain](./explain-1.png)
+
+从上图中可以看到，我们插入的一百万条数据全部被分配到了第一个shard服务器中，这并不是我们想看到的结果，不要着急，因为我还没有进行数据切分，所以MongoDB并不会自动的分配这些数据。下面我们来一点一点分析如何利用Shard实现高效的数据查询。
 
 ### 配置Shard数据库
 
