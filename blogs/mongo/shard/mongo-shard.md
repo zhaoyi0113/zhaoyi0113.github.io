@@ -125,9 +125,10 @@ sh.setBalancerState(false)
 sh.enableSharding('test')
 sh.shardCollection('test.users', {'user.age':1})
 ```
+
 从上面的命令中可以看出，我们首先要为Shard Key创建索引，之后禁止Balancer的运行，这么做的原因是不希望在Shard Collection的过程中还运行Balancer。如果Shard collection成功的返回，你会得到下面的输出结果：`{ "collectionsharded" : "test.users", "ok" : 1 }`。
 
-随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards
+随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards服务器。
 
 
 **关于Shard需要注意的几点**
