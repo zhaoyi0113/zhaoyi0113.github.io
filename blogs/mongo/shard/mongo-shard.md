@@ -114,15 +114,7 @@ mongos> sh.status()
 ```javascript
 db.getSiblingDB('test').getCollection('users').createIndex({'user.age':1})
 sh.setBalancerState(false)
-sh.enableSharding('test')
-sh.shardCollection('test.users', {'user.age':1})
-```
 
-从上面的命令中可以看出，我们首先要为Shard Key创建索引，之后禁止Balancer的运行，这么做的原因是不希望在Shard Collection的过程中还运行Balancer。之后对test库中的users collection进行按用户年龄字段的shard操作，如果Shard collection成功返回，你会得到下面的输出结果：`{ "collectionsharded" : "test.users", "ok" : 1 }`。
-
-随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards服务器。下面对数据进行分组：
-
-```javascript
 sh.addShardTag('shard01', 'junior')
 sh.addShardTag('shard02', 'middle')
 sh.addShardTag('shard03', 'senior')
@@ -130,13 +122,13 @@ sh.addShardTag('shard03', 'senior')
 sh.addTagRange('test.users', {'user\uff0eage': MinKey}, {'user\uff0eage':20}, 'junior')
 sh.addTagRange('test.users', {'user\uff0eage': 21}, {'user\uff0eage':40}, 'middle')
 sh.addTagRange('test.users', {'user\uff0eage': 41}, {'user\uff0eage': MaxKey}, 'senior')
+
+sh.enableSharding('test')
+sh.shardCollection('test.users', {'user.age':1})
 sh.setBalancerState(true)
 ```
 
-分组之后别忘了启动Balancer。一般Balancer会运行一段时间，因为他要对分组的数据重新分配到指定的shard服务器上，你可以通过`sh.isBalancerRunning()`命令查看Balancer是否正在运行。现在可以稍事休息一下喝杯咖啡或看看窗外的风景。
-
-为了理解数据如何在不同Shard中的分配，我们有必要分析一下chunk和zone的划分：
-
+从上面的命令中可以看出，我们首先要为Shard Key创建索引，之后禁止Balancer的运行，这么做的原因是不希望在Shard Collection的过程中还运行Balancer。之后将数据按照年龄分成三组，分别标记为`junior`, `middle`，`senior`并把这三组分别分配到三个Shard集群中。 之后对test库中的users collection进行按用户年龄字段的shard操作，如果Shard collection成功返回，你会得到下面的输出结果：`{ "collectionsharded" : "test.users", "ok" : 1 }`。
 
 **关于Shard需要注意的几点**
 
@@ -144,6 +136,62 @@ sh.setBalancerState(true)
   
   - 你无法在为这个collection重新选择Shard Key
   - 你不能更新Shard key的值
+
+随后不要忘记，我们还需要将Balancer打开：`sh.setBalancerState(true) `。刚打开以后运行`sh.isBalancerRunning()`应当返回`true`，说明Balancer正在运行调整Chunk在不同Shards服务器。一般Balancer会运行一段时间，因为他要对分组的数据重新分配到指定的shard服务器上，你可以通过`sh.isBalancerRunning()`命令查看Balancer是否正在运行。现在可以稍事休息一下喝杯咖啡或看看窗外的风景。
+
+为了理解数据如何分布在3个shard集群中，我们有必要分析一下chunk和zone的划分，下图是在dbKoda上显示Shard Cluster统计数据，可以看到数据总共被分成6个chunks，每个shard集群存储2个chunk。
+
+![Shard Server统计](./shardstats-1.png)
+
+对此有些同学会有疑问，为什么我们的数据会被分为6个chunks，而且每个shard集群个分配了2个chunk。是谁来保证数据的均匀分配？下面我就给大家解释一下他们的概念以及我们应当如何使用。
+
+### Chunk
+
+我们已经知道MongoDB是通过shard key来对数据进行切分，被切分出来的数据被分配到若干个chunks中。一个chunk可以被认为是一台shard服务器中数据的子集，根据shard key，每个chunk都有上下边界，在我们的例子中，边界值就是用户年龄。chunk有自己的大小，数据不断插入到mongos的过程中，chunk的大小会发生变化，chunk的默认大小是64M。当然MongoDB允许你对chunk的大小进行设置，你也可以把一个chunk切分成若干个小chunk，或者合并多个chunk。一般我不建议大家手动操作chunk的大小，或者在mongos层面切分或合并chunk，除非真有合适的原因才去这么做。原因是，在数据不断插入到我们的集群中时，mongodb中的chunk大小会发生很大的变化，当一个chunk的大小超过了最大值，mongo会根据shard key对chunk进行切分，在必要的时候，一个chunk可能会被切分成多个小chunk，大多数情况下这种自动行为已经满足了我们日常的业务需求，无需进行手动操作，另一点原因是当进行chunk切分后，直接的结果会导致数据分配的不均匀，此时balancer会被调用来进行数据重新分配，很多时候这个操作会运行很长时间，无形中导致了内部结构的负载平衡，因此不建议大家手动拆分。当然，理解chunk的分配原理还是有助于大家分析数据库性能的必要条件。我在这里不过多的将如何进行这些操作，有兴趣的读者可以参考MongoDB官方文档，上面有比较全面的解释。这里我只强调在进行chunk操作的时候，要注意一下几个方面，这些都是影响你MongoDB性能的关键因素。
+
+- 如果存在大量体积很小的chunk，他可以保证你的数据均匀的分布在shard集群中但是可能会导致频繁的数据迁移。这将加重mongos层面上的操作。
+- 大的chunk会减少数据迁移，减轻网络负担，降低在mongos路由层面上的负载，但弊端是有可能导致数据在shard集群中分布的不均匀。
+- Balancer会在数据分配不均匀的时候自动运行，那么Balancer是如何决定什么情况下需要进行数据迁移呢？答案是Migration Thresholds，当chunk的数量在不同shard replica之间超过一个定值时，balancer会自动运行，这个定值根据你的shard数量不同而不同。
+
+### Zones
+
+可以说chunk是MongoDB在多个shard集群中迁移数据的最小单元，有时候数据的分配不应按照我们意向的方向进行，就拿上面的例子来说，虽然我们选择了用户年龄作为shard key，但是MongoDB并不会按照我们设想的那样来分配数据，如何进行数据分配就是通过Zones来实现。Zones解决了shard集群于shard key之间的关系，我们可以按照shard key对数据进行分组，每一组称之为一个Zone，之后把Zone在分配给不同的Shard服务器。一个Shard可以存储一个或多个Zone，前提是Zone之间没有数据冲突。Balancer在运行的时候会把在Zone里的chunk迁移到关联这个Zone的shard上。
+
+理解了这些概念以后，我们对数据的分配就有了更清楚的认识。我们对前面提到的问题就有了充分的解释。表面上看，数据的分布貌似均匀，我们执行几个查询语句看看性能怎样。这里再次用到dbKoda中的explain视图。
+
+![Explain](./explain-2.png)
+
+上图中查找年龄在18周岁以上的用户，根据我们的分组定义，三个shard上都有对应的纪录，但是shard1对应的年龄组是20岁以下，应该包括数量较少的数据，所以在图中shard里表里现实的shard01返回了9904条记录，远远少于其他两个shard，这也符合我们的数据定义。在上面性能途中也可以看出，这条语句在shard01上面运行的时间也是相对较少的。
+
+再看看下面的例子，如果我们查找25周岁以上的用户，得到的结果中并没有出现shard1的身影，这也是符合我们的数据分配，因为shard1只存储了年龄小于20周岁的用户。
+
+![Explain](./explain-3.png)
+
+### 你选择的Shard Key合适吗？
+
+了解了数据是如何分布的以后，咱们在回过头来看看我们选择的shard key是否合理。细心的读者已经发现，上面运行的explain结果中存在一个问题，就是shard3存储了大量的数据，如果我们看一下每个年龄组的纪录个数，会发现shard1、shard2、shard3分别包括198554, 187975, 593673，显然年龄大于40岁的用户占了大多数。这并不是我们希望的结果，因为shard3成为了集群中的一个瓶颈，数据库操作语句在shard3上运行的速度会大大超过另外两个shard，这点从上面的explain结果中也可以看到，查询语句在shard3上的运行时间是另外两个shard的两倍以上。更重要的是，随着用户数量的不断增加，数据的分布也会出现显著变化，在系统运行一段时间以后，可能shard2的用户数超过shard3，也有可能shard1称为存储数据量最多的服务器。这种数据不平衡是我们不希望看到的。原因在哪里呢？是不是觉得我们选择的用户年龄作为分组条件是一个不太理想的key。那么什么样的key能够保证数据的均匀分布呢？接下来我们分析一下shard key的种类。
+
+### Ranged Shard Key
+
+我们上面选择的年龄分组就是用的这种shard key。根据shard key的取值，它把数据切分成连续的几个区间。取值相近的纪录会放进同一个shard服务器。好处是查询连续取值纪录时，查询效率可以得到保证。当数据库查询语句发送到mongos中时，mongos会很快的找到目标shard，而且不需要将语句发送到所有的shard上，一般只需要少量的shard就可以完成查询操作。缺点是不能保证数据的平均分配，在数据插入和修改时会产生比较严重的性能瓶颈。
+
+### Hashed Shard Key
+
+于Ranged Shard Key对应的一种被称之为Hashed Shard Key，它采用字段的索引哈希值作为shard key的取值，这样做可以保证数据的均匀分布。在mongos和各个shard集群之间存在一个哈希值计算方法，所有的数据在迁移时都是根据这个方法来计算数据应当被迁移到什么地方。当mongos接收到一条语句时，通常他会把这条语句广播发布到所有的shard上去执行。
+
+有了上面的认识，我们如何在Ranged和Shard之间进行选择呢？下面两个属性是我们选择shard key的关键。
+
+### Shard Key Cardinality （集）
+
+`Cardinality`指的是shard key可以取到的不同值的个数。他会影响到Balancer的运行，这个值也可以被看做是Balancer可以创建的最大chunk个数。以我们年龄字段为例，加入一个人的年龄在100岁以下，那么这个字段的cardinality可以取100个不同的值。对于一个唯一的年龄数据，不会出现在不同的chunk中。如果你选择的Shard Key的cardinality很小，比如只有4个，那么数据会被分发到4个不同的shard中，这样的结构也不适合服务器的水平扩展，因为不会有数据被分割到第五个shard服务器上。
+
+### Shard Key Frequency（频率）
+
+`Frequency`指的是shard key的重复度，也就是对于一个字段，有多少取值相同的纪录。如果大部分数据的shard key取值相同，那么存储他们的chunk会成为数据库的一个瓶颈。而且，这些chunk也变成了不可在切分的chunk，严重影响了数据库的水平扩展。所以，尽量选择低频率的字段作为shard key。
+
+### Shard Key Increasing Monotonically 单调增长
+
+单调增长在这里的意思是在数据被切分以后，新增加的数据会按照其shard key取值向shard中插入，如果新增的数据的key值都是向最大值方向增加，那么这些新的数据会被插入到一个shard服务器上。例如我们前面的用户年龄分组字段，如果系统的新增用户都是年龄大于40岁的，那么shard3将会存储所有的新增用户，shard3会成为系统的性能瓶颈。在这种情况下，应当考虑使用Hashed Shard Key。
 
 
 
