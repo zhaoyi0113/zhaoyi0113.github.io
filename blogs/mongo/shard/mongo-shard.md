@@ -1,5 +1,7 @@
 # MongoDB的水平扩展，你做对了吗？
 
+关于MongoDB水平扩展的文章很多，但是我查阅了大部分资料并没有看到行之有效的解决方案。大部分都是泛泛的介绍一些概念性的内容，没有提供具体的事例或者性能方面的考量。经过一段时间的实践和总结，我觉得有必要和大家分享一下数据水平扩展方面的最佳实践，以及需要注意和规避的潜在问题。
+
 ## 分布式数据库的前世今生
 
 当人们一开始使用数据库系统的时候，所有数据都是跑在一台服务器上，即所谓的单机数据库服务器。在企业级应用中，我们会搭建一台应用程序服务器，一般它会被运行在一台服务器或者工作站上，大多数情况下采用Linux／Unix／Windows操作系统，也有人把这样的服务器称之为应用程序服务器。顾名思义，他的作用是处理复杂的业务逻辑。但是一点需要注意的是，在这样的构架中，这台应用程序服务器不会存储任何业务数据，也就是说，他只负责逻辑运算，处理用户请求，真正存放数据的地方是前面提到的那台数据库服务器。应用程序服务器将用户的请求转换成数据库语言（通常是SQL），运行在数据库中，从而进行数据的增删改查。数据库服务器不会对外直接开放，管理人员也不允许直接在数据库层面操作数据。所有的操作都会经过应用程序服务器来完成。应用程序层、数据库层再加上UI层，被称为传统的Web三层构架。
@@ -81,7 +83,7 @@ mongos> sh.status()
 {
     "user": {
         "name": {
-            "first": {"$choose": ["Liam", "Aubrey", "Zoey", "Aria", "Ellie", "Natalie", "Zoe", "Audrey", "Elizabeth", "Scarlett", "Layla", "Victoria", "Brooklyn", "Lucy", "Lillian", "Claire", "Nora", "Riley", "Leah"] },
+            "first": {"$choose": ["Liam", "Aubrey", "Zoey", "Aria", "Ellie", "Natalie", "Zoe", "Audrey", "Claire", "Nora", "Riley", "Leah"] },
             "last": {"$choose": ["Smith", "Patel", "Young", "Allen", "Mitchell", "James", "Anderson", "Phillips", "Lee", "Bell", "Parker", "Davis"] }
         }, 
         "gender": {"$choose": ["female", "male"]},
@@ -187,11 +189,32 @@ sh.setBalancerState(true)
 
 ### Shard Key Frequency（频率）
 
-`Frequency`指的是shard key的重复度，也就是对于一个字段，有多少取值相同的纪录。如果大部分数据的shard key取值相同，那么存储他们的chunk会成为数据库的一个瓶颈。而且，这些chunk也变成了不可在切分的chunk，严重影响了数据库的水平扩展。所以，尽量选择低频率的字段作为shard key。
+`Frequency`指的是shard key的重复度，也就是对于一个字段，有多少取值相同的纪录。如果大部分数据的shard key取值相同，那么存储他们的chunk会成为数据库的一个瓶颈。而且，这些chunk也变成了不可在切分的chunk，严重影响了数据库的水平扩展。在这种情况下应当考虑使用组合索引的方式来创建shard key。所以，尽量选择低频率的字段作为shard key。
 
-### Shard Key Increasing Monotonically 单调增长
+### Shard Key Increasing Monotonically （单调增长）
 
 单调增长在这里的意思是在数据被切分以后，新增加的数据会按照其shard key取值向shard中插入，如果新增的数据的key值都是向最大值方向增加，那么这些新的数据会被插入到一个shard服务器上。例如我们前面的用户年龄分组字段，如果系统的新增用户都是年龄大于40岁的，那么shard3将会存储所有的新增用户，shard3会成为系统的性能瓶颈。在这种情况下，应当考虑使用Hashed Shard Key。
+
+### 重新设计Shard Key
+
+通过上面的分析我们可以得出结论，前面例子中的用户年龄字段是一个很糟糕的方案。有几个原因：
+
+- 用户的年龄不是固定不变的，由于shard key是不可变字段，一旦确定下来以后不能进行修改，所以年龄字段显然不是很合适，毕竟没有年龄永远不增长的用户。
+- 一个系统的用户在不同年龄阶段的分布是不一样的，对于像游戏、娱乐方面的应用可能会吸引年轻人多一些。而对于医疗、养生方面也许会有更多老年人关注。从这一点上说，这样的切分也是不恰当的。
+- 选择年龄字段并没有考虑到未来用户增长方面带来的问题，有可能在数据切分的时候年龄是均匀分布的，但是系统运行一段时间以后有可能出现不平等的数据分布，这点会给数据维护带来很大的困扰。
+
+那么我们应当如何进行选择呢？看一下用户表的所有属性可以发现，其中有一个`created_at`字段，它指的是纪录创建的时间戳。如果采用Ranged Key那么在数据增长方向上会出现`单调增长`问题，在分析一下发现这个字段重复的纪录不多，他有很高的`cardinality`和非常低的`频率`，这样Harded key就成为了很好的备选方案。
+
+分析完理论以后咱们实践一下看看效果，不幸的是我们并不能修改shard key，最好的方法就是备份数据，重新创建shard集群。创建和数据准备的过程我就不在重复了，你们可以根据前面的例子自己作一遍。
+
+### 选择完美的Shard Key
+
+在shard key的选择方面，我们需要考虑很多因素，有些是技术的，有些是业务层面的。通常来讲应当注意下面几点：
+
+- 所有增删改查语句都可以发送到集群中所有的shard服务器中
+- 任何操作只需要发送到与其相关的shard服务器中，例如一次删除操作不应当发送到没有包括要删除的数据的shard服务器上
+
+权衡利弊，实际上没有完美的shard key，只有选择shard key时应当注意和考虑的要素。不会出现一种shard key可以满足所有的增删改查操作。你需要从给你的应用场景中抽象出用来选择shard key的元素，考量这些要素并作出最后选择，例如：你的应用是处理读操作多还是写操作多？最常用的写操作场景是什么样子的？
 
 # 小结
 
@@ -205,3 +228,5 @@ sh.setBalancerState(true)
 [MongoDB Docker Cluster](https://github.com/zhaoyi0113/mongo-cluster-docker)
 
 [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem)
+
+[dbKoda](https://www.dbkoda.com)
