@@ -238,3 +238,5 @@ Next Generation Databases: NoSQLand Big Data, Guy Harrison
 [MongoDB Docker Cluster](https://github.com/zhaoyi0113/mongo-cluster-docker)
 
 [CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem)
+
+作者简介：赵翼，毕业于北京理工大学，目前就职于SouthbankSoftware，从事NoSQL，MongoDB方面的开发工作。曾在GE，ThoughtWorks，元气兔担任项目开发，技术总监等职位，接触过的项目种类繁多，有Web，Mobile，医疗器械，社交网络，大数据存储等。
