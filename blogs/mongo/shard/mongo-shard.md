@@ -207,7 +207,11 @@ sh.setBalancerState(true)
 
 分析完理论以后咱们实践一下看看效果，不幸的是我们并不能修改shard key，最好的方法就是备份数据，重新创建shard集群。创建和数据准备的过程我就不在重复了，你们可以根据前面的例子自己作一遍。
 
+下图中是我新建的一个`users`collection，并以`created_at`为索引创建了Hashed Shard Key，注意`created_at`必须是一个hash index才能成为hashed shard key。下面是针对用户表的一次查询结果。
 
+![Explain](./explain-4.png)
+
+从图中可以看到，explain的结果表示了三个shard服务器基本上均匀分布了所有的数据，三个shard上执行时间也都基本均匀，在500到700多毫秒以内。还记得上面的几次查询结果吗？在数据比较多的shard上的运行时间在1到2毫秒。可以看到总的性能得到了显著提高。
 
 ### 选择完美的Shard Key
 
