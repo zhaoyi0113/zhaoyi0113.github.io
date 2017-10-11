@@ -14,11 +14,51 @@
 
 ## Replica Set
 
-在MongoDB世界中，高可用是通过Replica来实现的，Replica这个单词的字面意思是“复制品”，所以说在Replica Set中每一台数据库都存储了一份全部数据的拷贝，所有数据库的存储内容都是一样的。对外来说整个Replica Set只有一个入口，应用程序服务器只需要通过这一个入口来进行数据库操作。Replica Set内部是由多台角色不同的MongoDB服务器组成，每台服务器相当于是一个`mongod`进程，共分为`Master`, `Secondary`和`Arbiter`。
+在MongoDB世界中，高可用是通过Replica来实现的，Replica这个单词的字面意思是“复制品”，所以说在Replica Set中每一台数据库都存储了一份全部数据的拷贝，所有数据库的存储内容都是一样的。对外来说整个Replica Set只有一个入口，应用程序服务器只需要通过这一个入口来进行数据库操作。Replica Set内部是由多台角色不同的MongoDB服务器组成，每台服务器相当于是一个`mongod`进程，共分为`Primary`, `Secondary`和`Arbiter`。
 
-- Master：提供所有数据库的写操作
-- Secondary：存储Master上全部数据库的备份。当Master不可访问时，Secondary会接替Master的工作继续对外提供服务
-- Arbiter：这是一个比较独特的成员，他并不存储任何数据库，当Master无法访问时，他只作为推选新Master的一个投票成员。下面我们会详细介绍他的作用。
+- Primary：提供所有数据库的写操作
+- Secondary：存储Primary上全部数据库的备份。当Primary不可访问时，Secondary会接替Primary的工作继续对外提供服务
+- Arbiter：这是一个比较独特的成员，他并不存储任何数据库，当Primary无法访问时，他只作为推选新Primary的一个投票成员。下面我先给大家简单介绍一下这些概念，然后深入的分析Replica Set中各种场景的原理和注意要点。
 
-一般一个Replica Set最少有3个成员负责存储数据，一个Master，两个Secondary。从MongoDB 3.0以后，一个Replica Set中最多可以有50个成员，但是其中Arbiter只能有7个。下图是一个拥有三个成员的Replica Set，一个Master，两个Secondary。
+### Primary
 
+一般一个Replica Set最少有3个成员负责存储数据，一个Primary，两个Secondary。从MongoDB 3.0以后，一个Replica Set中最多可以有50个成员，但是其中Arbiter只能有7个。下图是一个拥有三个成员的Replica Set，一个Primary，两个Secondary。
+
+![Replica Set](./replicaset-1.png)
+
+Primary负责所有数据库写操作。看到这里有可能你会认为，这样的Replica Set可以自动实现读写分离，Primary负责写操作，Secondary负责读请求，但实际上并不一定是这样，为什么说不一定呢？MongoDB提供了另外一个参数用来设置是否是读写分离，`Read Preference`。默认情况下，Replica中的所有Primary和Secondary都可以处理读请求，只有Primary可以处理写请求。在下面我会给大家详细介绍`Read Preference`的使用场景。当一台Primary不可访问时，一次选举将会在剩下的Replica成员中进行，每个成员有一个投票表决权，得票最多的成员将成为新的Primary，在后面我会详细介绍选举的原理。
+
+### Secondary
+
+Secondary数据库存储了Primary上的所有数据，每当Primary上进行一次数据更新时，都会产生一条oplog纪录，secondary根据Primary上的oplog来同步数据。一台Primary可以连接多台secondary数据库。多台secondary之间通过心跳检测来保持连接。虽然secondary不允许写操作，但是它允许客户端读取纪录，从而实现数据库的读写分离。在primary服务器不可使用的情况下，一台secondary可以成为primary接替数据写操作的任务。除了读写分离之外，secondary还可以被配置成一下几种类型的数据库：
+- 由于某些原因，你有可能不希望某一台secondary成为primary服务器，这种情况下你可以配置这台secondary的priorty使它永远不能成为prmary。
+- 你也可以禁止用户从secondary读取数据，这样的secondary可以被用在一些独立的场景，例如报表数据库，它会在一个独立的环境运行，不影响应用程序的正常使用。
+- 还有一种配置被称为`延时Secondary`，你可以个他配置一个延时时间，在这个时间内他不会同步任何数据，这样的好处是个你一个反悔的时间。例如，你不小心丛Prmary上删除了一些重要数据，在一定时间内，你可以从延时Secondary上把这些数据恢复回来。
+
+### Arbiter
+
+这是一种比较特殊的服务器，他不会存储任何纪录，也不会成为Primary。他的作用是在Replica Set选择Primary时作为一个投票成员。当你的Primary不可以时，Replica中的每个成员都有为新Primary投票的权利，但是如果你的成员个数是偶数，有可能两个候选Primary的得票数一样，此时Arbiter的存在会使投票个数是奇数，这样不会存在得票数一样多的情况。
+
+## MongoDB高可用构架
+
+上面已经提到，MongoDB的高可用是通过Replica Set来完成的，简单来说，当Replica Set中的Primary不可用时，其中一个Secondary将会成为新的Primary。但是这个过程也许并没有你想象的那么简单，这一节中我们来谈谈高可用的内部实现原理。
+
+### Primary选举过程
+
+Replica Set通过公开选举来选出当前某个成员为Primary成员。这个选举过程发生在两个地方，一个地方是当一个Replica Set在初始化的时候进行，另一个场景是当当前的Primary不可用时。下面显示了一个选举过程。
+
+![Election](./election-1.png)
+
+一次选举过程需要一定的时间，在这段时间内Replica不支持写操作，所有成员都将成为只读成员。这里需要介绍一个重要的概念，“大多数”，他的意思很简单就是一半以上成员选出的才算数。换句话说，只有当大多数成员选出来的服务器才能算是新的Primary。上面的例子中，Replica Set一共有三个成员，当一个Primary不可用时，另外两个Secondary构成了Replica Set中的“大多数”，因此他们选出来的服务器可以称为新的Primary。如果在选举过程中没有构成“大多数”选票，则该Replica Set将成为没有Primary成员的Replica，此时其他成员成为Secondary并只提供只读服务。注意上图中右侧新的Replica Set中，以前的primary并没有从Replica中删除，他仍然纪录在Replica里只不过状态被标记为”不可用“。为什么要强调这一点，其实这和刚刚提到的“大多数”成员的概念有关系，通常认为只要是Primary不可用直接将一台Secondary作为Primary就可以了，其实并不是这么简单。如果你盲目的认为一台Primary挂掉就直接从Replica里删除的话，你有可能永远不能理解“大多数”的概念。在这个例子中，如果剩下的两台服务器中的Primary挂掉以后，将不会有新的Primary被选出来，原因是这个Replica Set一共有三个成员，目前只剩下一个Secondary，他并不能构成“大多数“成员，所以选举过程失败，将不会有新的Primary产生。如果此时，前面挂掉的两台Primary中的任何一台恢复工作，他的状态会自动变成可执行，这样就和剩下的那台Secondary组成了新的”大多数“，从而可以成功的再选出一个Primary。
+
+看到这里有的同学可能会问，为什么不设计成只要有一个成员可用就让它成为Primary呢？这样不是可以更好的保证数据库的高可用吗？其实在一开始学习MongoDB的时候我也有类似的问题，答案在下面的多数据中心部署中。
+
+### 多数据中心的高可用
+
+Replica Set为MongoDB高可用提供了基本构架支持，但是当一个Replica中所有成员全部来自一个数据中心时，这种高可用在整个数据中心失效时并不能起到任何修复作用。数据中心的实效可以归结为自然灾害、供电不足、网络故障等原因。所以，将Replica Set成员部署到不同地理位置的数据中心中是灾难恢复的一个常用手段。
+
+我们现回到上一节中提到的问题，为什么说选举一定要通过“大多数”来投票。先看下面的服务器构架：
+
+!(Data Center)[./datacenter-1.png]
+
+图中的Replica Set部署在两个数据中心，Data Center1包含一个Primary一个Secondary；Data Center2包含一个Secondary。如果两个数据中心之间的网络出现故障，此时的Replica Set被分割成了两个部分，如果没有“大多数”成员这个概念，那么大家可以想一下会出现什么情况，会有两个Replica Set同时提供服务，Data Center1中的两个成员继续提供数据服务，因为Primary还在继续运行；但是Data Center2中仅剩的一台Secondary会把自己选成Primary并认为另两个成员不可用。当这两个Replica Set接收来自客户端的更新操作后，他们会各自更新个字的数据，那么如果两个数据中心之间的网络恢复以后，谁的数据才是准确的数据，他们之间应当按照什么样的逻辑来同步，可能这个问题并不能完美解决。所以，为了避免这种情况，MongoDB工程师提出了“大多数”的概念，在这个概念下Data Center2中的Secondary由于它不构成“大多数”成员，因此它只能提供只读服务，而Data Center1中的两个成员可以构成“大多数”选票，他们继续承担Replica的职责。
