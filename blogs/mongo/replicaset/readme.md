@@ -59,6 +59,16 @@ Replica Set为MongoDB高可用提供了基本构架支持，但是当一个Repli
 
 我们现回到上一节中提到的问题，为什么说选举一定要通过“大多数”来投票。先看下面的服务器构架：
 
-!(Data Center)[./datacenter-1.png]
+![Data Center](./datacenter-1.png)
 
 图中的Replica Set部署在两个数据中心，Data Center1包含一个Primary一个Secondary；Data Center2包含一个Secondary。如果两个数据中心之间的网络出现故障，此时的Replica Set被分割成了两个部分，如果没有“大多数”成员这个概念，那么大家可以想一下会出现什么情况，会有两个Replica Set同时提供服务，Data Center1中的两个成员继续提供数据服务，因为Primary还在继续运行；但是Data Center2中仅剩的一台Secondary会把自己选成Primary并认为另两个成员不可用。当这两个Replica Set接收来自客户端的更新操作后，他们会各自更新个字的数据，那么如果两个数据中心之间的网络恢复以后，谁的数据才是准确的数据，他们之间应当按照什么样的逻辑来同步，可能这个问题并不能完美解决。所以，为了避免这种情况，MongoDB工程师提出了“大多数”的概念，在这个概念下Data Center2中的Secondary由于它不构成“大多数”成员，因此它只能提供只读服务，而Data Center1中的两个成员可以构成“大多数”选票，他们继续承担Replica的职责。
+
+好了，明白了“大多数”的概念以后我们看看在多数据中心情况下如何分配部署MongoDB。还是以上面的例子，我们有一个三个成员Replica Set要部署在两个数据中心上。通常我们把一台Primary和一台Secondary放到一个数据中心，另外一个Secondary放到另一个数据中心。如果其中一个成员是Arbiter，不要把它单独放在一个数据中心，他要和一个有数据的服务器放到一起。此时：
+- 如果第一个数据中心失效，这个Replica Set会成为只读服务器；
+- 如果第二个数据中心失效，这个Replica Set可以继续正常工作。
+
+如果要把他们部署到三个数据中心上，那么他们三个分布部署到不同的数据中心，此时如果任何一个数据中心实效，剩下的两个仍然可以构成一个完整的Replica Set。
+
+### 如何利用Read／Write Concern
+
+
