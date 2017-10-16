@@ -12,3 +12,8 @@
 
 好了，这就是神经网络最基本的解释，有可能你觉得太简单了。没错，这篇文章的目的就是从最简单的概念出发，让不熟悉数学的人也能很好的理解和使用神经网络。
 
+# 参考文献
+
+http://blog.csdn.net/zzwu/article/details/575108
+http://www.wildml.com/2015/09/implementing-a-neural-network-from-scratch/
+https://www.analyticsvidhya.com/blog/2017/05/neural-network-from-scratch-in-python-and-r/

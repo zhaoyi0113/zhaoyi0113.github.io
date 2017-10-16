@@ -67,8 +67,52 @@ Replica Set为MongoDB高可用提供了基本构架支持，但是当一个Repli
 - 如果第一个数据中心失效，这个Replica Set会成为只读服务器；
 - 如果第二个数据中心失效，这个Replica Set可以继续正常工作。
 
-如果要把他们部署到三个数据中心上，那么他们三个分布部署到不同的数据中心，此时如果任何一个数据中心实效，剩下的两个仍然可以构成一个完整的Replica Set。
+如果要把他们部署到三个数据中心上，此时如果任何一个数据中心实效，剩下的两个仍然可以构成一个完整的Replica Set。
 
-### 如何利用Read／Write Concern
+### 如何利用Write Concern / Read Preference
+
+在处理MongoDB Reqplica Set时，不得不提的一个关键要素就是Write Concern / Read Preference。由于数据库的全部数据在所有的Replica Set服务器中都有一份拷贝，那么当我们进行一次数据库更新时，是不是需要更新到所有数据库呢？这样做当然理想，因为他可以保证数据的一致性。但是人们对一致性的要求根据不同的需求和应用会有很大区别。有时，我们需要保证集群中的所有数据库都进行了同样的写操作，这样可以保证数据在不同服务器上存储是一致的。但是这样做带来的缺点是此次写操作会花费更多的时间，因为他要通知Replica Set中其他服务器，并且同样的操作也有在其他所有服务器中运行。也有一些对一致性要求不高的场景，此时我们可以在损失一致性的基础上提高数据库性能。那么MongoDB如何控制数据一致性的呢？这就是本节要提及的一个概念：Write Concern / Read Preference。下面我们分别介绍一下他们的在Replica Set中起到的作用。
+
+#### Write Concern
+
+Write Concern定义了MongoDB在进行一次写操作时需要作出的确认级别。在默认情况下，一次数据库写操作只要在Primary服务器上执行完毕后就会返回。如下图所示：
+
+![Write Concern](./replicaset-2.png)
+
+当服务器对Primary发起一次请求时，Primary根据请求更新自身数据，然后返回更新结果，于此同时将本次操作广播到其他Secondary中。所以，应用程序在得到操作完成时并不能保证其他Secondary也做了同样的更新。此时如果另外一个应用程序向其中一台Secondary读取数据，有可能他得到的是更新前的数据。也许你会觉得这种现象的概率很小，设想一下在一个有上千万用户的应用中，每秒都会有若干次数据库读写操作，在这样庞大的负载量环境下，刚刚提到的场景时时刻刻都在发生。Write Concern就是为这种需求而设计的。通过Write Concern我们可以设计一下几个场景，我们可以指定，
+
+- 在一个Replica Set中，只有当一定数量的服务器进行了相应操作才确认此次更新完成。
+- 或者，只要Primary获得了更新就算操作完成。
+- 或者，大多数服务器进行了操作就确认更新完成。
+- 或者，具有某个标签的服务器操作成功就确认。
+
+除了这几个场景之外，我们还可以设置超时时间，当操作在一定时间内没有完成就认为操作失败。
+
+#### Read Preference
+
+于Write Concern类似，Read Preference指的是在对数据库进行读取操作时，Replica Set会将改操作转发给哪个服务器。默认情况下，所有的操作都会有Primary服务器来处理，但是在大应用程序构架中，我们要尽量降低Primary服务器并发访问次数，因此很多人会通过设置Read Preference来分发数据库请求到其他Secondary服务器上，有以下集中模式可供我们选择：
+
+- primary： 默认模式，所有请求都会发送到Primary上。
+- primaryPreferred：大部分读请求都会发送到Primary，但是当Primary无法访问时，改请求会被转发到Secondary上。
+- secondary： 所有请求都会发送到Secondary上。
+- secondaryPreferred： 大部分情况下，读请求被发送到Secondary中，但是如果Replica中没有Secondary，请求会发送到Primary上。
+- nearest：  请求会被发送到网络最近的服务器上。该模式在多数据中心上非常有效。
+
+对于secondary和secondaryPreferred两种模式我们需要注意，特别是在多数据中心环境中，用户读到的数据有可能不是最新的。原因在上一节Write Concern中已经提到。在shard环境中，如果允许Balancer，从Secondary中读到的数据有可能有重复。原因是Balancer的运行可能会导致一些Chunk是不完整的，而一些Chunk是重复的。关于Shard的应用，情参考我的另一篇文章`MongoDB的水平扩展，你做对了吗？`。
 
 
+# 参考文献
+
+[dbKoda](https://www.dbkoda.com)
+
+[MongoDB Docker Cluster](https://github.com/zhaoyi0113/mongo-cluster-docker)
+
+[CAP theorem](https://en.wikipedia.org/wiki/CAP_theorem)
+
+[Read Preference](https://docs.mongodb.com/v3.2/core/read-preference/)
+
+[Write Preference](https://docs.mongodb.com/manual/reference/write-concern/)
+
+# 作者简
+
+赵翼，毕业于北京理工大学，目前就职于SouthbankSoftware，从事NoSQL，MongoDB方面的开发工作。曾在GE，ThoughtWorks，元气兔担任项目开发，技术总监等职位，接触过的项目种类繁多，有Web，Mobile，医疗器械，社交网络，大数据存储等。
