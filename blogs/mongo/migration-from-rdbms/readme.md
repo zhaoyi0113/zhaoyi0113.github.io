@@ -1,8 +1,10 @@
 # 教你如何将关系型数据导入MongoDB
 
-关系型数据库已经统治数据存储长达三十几年的时间，即便在2000年以后诞生了NoSQL数据库，但他的出现并没有改变关系型数据的统治地位。随着最近几年互联网应用的快速崛起，以及互联网用户的不断增加，数据来源越来越复杂多样，传统关系型数据存储面临了很大的挑战。这种挑战体现在数据格式死板，改动困难，存储不够灵活，难于扩展等方面。因此，很多企业、公司都先后把数据从关系型迁移到NoSQL上来，其中MongoDB又是使用相对较广泛的数据库实现。本文就为大家分享一下关系型数据导入进MongoDB中应当遵循的步骤和注意的问题。
+今天一早就收到一封关于MongoDB的邮件，`MongoDB began trading as a public company on the NASDAQ under the symbol “MDB.” `。是的，在经过长达10年的开源项目后，MongoDB终于登上了`纳斯达克`。作为一个MongoDB的忠实粉丝，除了为它感到骄傲之外，还想在此整理一下工作在MongoDB上的一些想法和经验。此文也算是为MongoDB的推广献一份力量。
 
 # 准备工作
+
+关系型数据库已经统治数据存储长达三十几年的时间，即便在2000年以后诞生了NoSQL数据库，但他的出现并没有改变关系型数据的统治地位。随着最近几年互联网应用的快速崛起，以及互联网用户的不断增加，数据来源越来越复杂多样，传统关系型数据存储面临了很大的挑战。这种挑战体现在数据格式死板，改动困难，存储不够灵活，难于扩展等方面。因此，很多企业、公司都先后把数据从关系型迁移到NoSQL上来，其中MongoDB又是使用相对较广泛的数据库实现。本文就为大家分享一下关系型数据导入进MongoDB中应当遵循的步骤和注意的问题。
 
 在考虑将关系型数据导入到NoSQL中时，首先需要确认的几点是：首先这个导入过程不会是全自动的，并不是像备份数据，迁移数据，记住几个命令那么简单；其次，这个过程不是一个纯技术问题，在制定具体方案时，项目经理，业务分析人员，开发人员，数据库管理员都应当参与到方案的讨论中。迁移的计划、技术方案、各个项目负责人的职责应当在全体人员在场的情况下制定清楚；最后，应当考虑到迁移失败以后的恢复方案，根据应用数据的复杂程度不同，迁移的工作量也不会完全一样。
 
@@ -10,7 +12,7 @@
 
 上图列出了一个项目经过关系型数据向NoSQL中迁移的大致步骤，当然这绝对不是一个唯一的标准。只是通常情况下的做法，可能会根据不同项目的特别需求有一些调整。下面我们来详细分析每一个阶段的具体工作内容。
 
-# 数据表结构定义
+# 数据模型定义
 
 有可能你会觉得奇怪，MongoDB不是结构无关的NoSQL数据库吗？为什么我们要提到数据库表结构定义。实际上，NoSQL中的结构无关值得是从技术层面来讲，数据库对表结构没有强约束，任何格式的JSON都可以插入进MongoDB表中。但是，我们在做项目时不能为所欲为的在数据库中插入数据，一定要遵循我们自己定义的一套规则来进行，否则程序根本无法管理数据层面的业务逻辑。在讨论表结构之前，先来看一下MongoDB中的一些术语和关系型数据库的对应关系。
 
@@ -110,10 +112,55 @@ student_id | course_id | score
 
 # 应用集成
 
+有了数据模型的定义，我们就可以开始进行应用集成。集成的方法可以使用MongoDB的Driver，它支持了几乎常用的各种计算机语言。使用简单和开发效率高是MongoDB的两大特点。于SQL语句不同的是，MongoDB采用了API的方法提供接口，开发人员可以选择支持自己熟悉语言的Driver，DBA可以直接使用Mongo Shell脚本。幸运的是，MongoDB提供了API和SQL语句的对照表供大家参考，[SQL to MongoDB Mapping Chart](https://docs.mongodb.com/manual/reference/sql-comparison/)。
 
+另一个强大的功能不能不提的是Aggregation Framework（聚合）。并不是所有NoSQL数据库都支持Aggregation，简单理解Aggregation可以把它当成是Hadoop里面的Map Reduce，或者SQL里面的Left Join。在没有Aggregation的情况下，开发人员进行数据迁移不得不进行如下操作：
+
+- 在应用程序层开发类似Aggregation的功能，将数据聚合在一起并写进数据库。这样做加大了应用程序的复杂度，并且很难适应各种不同数据的组合情况。没遇到一个新的需求都需要进行一定量的开发工作。
+- 有些人会把数据到如今Hadoop，然后在上面运行MapReduce生成结果，之后将结果倒进NoSQL中。这是一个折中的方法，但是他并不支持实时数据迁移，只能进行线下操作。
+
+MongoDB支持原生Aggregation操作，你可以把需要迁移的数据进行聚合操作，每一次操作可以想象成一个流水线上的环节，将所有的操作连接起来可以构成一条Aggregation Pipeline。在Pipeline上面的每一个节点都有自己的输入输出，前一个节点的输出是下一个节点的输入。有兴趣的同学可以在这个连接上找到更多的关于Aggregation操作，它列出了每一个Aggregation命令和SQL语句的对应关系，[SQL to Aggregation Mapping Chart](https://docs.mongodb.com/manual/reference/sql-aggregation-comparison/)
+
+# 数据完整性
+
+在关系型数据库中，有很多支持ACID事务操作的方法和应用，DBA并不希望在数据迁移的过程中有任何闪失，例如损失数据完整性。MongoDB在这方面具有不同形式的支持。在3.0以上版本中，MongoDB支持了[WiredTiger Storage Engine](https://docs.mongodb.com/manual/core/wiredtiger/)，他支持了Document级别上的锁操作。也就是说，在进行数据库写操作时，MongoDB可以保证针对一个Document操作的原子性，这个操作可以和其他操作完全分隔开来。除了对单个Dcoument的原子操作支持外，MongoDB还支持多Document的事务，比如，`findAndModify`方法允许你在进行多个文档操作的时保持事务完整。再比如，可以通过`Perform Two Phase Commits`实现更新多个文档的原子操作，更多信息请访问[Perform Two Phase Commits](https://docs.mongodb.com/manual/tutorial/perform-two-phase-commits/)。
+
+# 数据一致性
+
+在数据一致性方面，MongoDB通过Read Preference来调节一致性的程度。默认情况下，在一个MongoDB Replica Set中，所有的数据库读操作都会发到Primary服务器上，Replica Set中的所有Secondary保证数据最终一致性。同时，MongoDB提供了修改这种一致性的行为方式。数据库管理员可以通过修改Read Preference参数达到对一致性不同要求的场景。数据一致性可以有下面集中方案：
+
+- primary： 默认模式，所有请求都会发送到Primary上。
+- primaryPreferred：大部分读请求都会发送到Primary，但是当Primary无法访问时，改请求会被转发到Secondary上。
+- secondary： 所有请求都会发送到Secondary上。
+- secondaryPreferred： 大部分情况下，读请求被发送到Secondary中，但是如果Replica中没有Secondary，请求会发送到Primary上。
+- nearest：  请求会被发送到网络最近的服务器上。该模式在多数据中心上非常有效。
+
+# 数据迁移
+
+进行完上面的设计和思考以后，数据迁移就会变得想对容易。将数据导入进MongoDB有几个不同的选择，可以使用mongoimport将JSON数据进行导入，也可以通过ETL（Extract Transform Load)工具完成。很多项目允许在当前应用程序运行的情况下并行迁移关系型数据库中的数据，并且支持增量更新，具体操作如下：
+
+- 当一条记录从关系型数据库读出后，应用程序会将这条记录按照先前定义的JONS格式插入到MongoDB中。
+- 一致性检查，可以通过MD5等方法进行数据一致性检查。
+- 新的插入操作和数据修改操作全部转到MongoDB中完成。
+
+# 小结
+
+按照本文提供的方法和步骤，项目团队可以在数据迁移中减少不必要的时间和错误的操作。当然，数据永远是应用系统中的核心内容，任何数据迁移都需要支持错误恢复，如果失败也要能够快速恢复到以前的版本上。在这方面，MongoDB做到了更灵活的支持，具体内容可以参考[MongoDB Webnar](https://www.mongodb.com/webinars)。
 
 # 参考文献
 
 [Data Modeling](https://docs.mongodb.com/manual/core/data-modeling-introduction/)
 
+[SQL to MongoDB Mapping Chart](https://docs.mongodb.com/manual/reference/sql-comparison/)
+
+[SQL to Aggregation Mapping Chart](https://docs.mongodb.com/manual/reference/sql-aggregation-comparison/)
+
+[WiredTiger Storage Engine](https://docs.mongodb.com/manual/core/wiredtiger/)
+
+[Perform Two Phase Commits](https://docs.mongodb.com/manual/tutorial/perform-two-phase-commits/)
+
 https://resources.mongodb.com/migrating-to-mongodb/rdbmstomongodbmigration
+
+# 关于作者
+
+赵翼，毕业于北京理工大学，目前就职于SouthbankSoftware，从事NoSQL，MongoDB方面的开发工作。曾在GE，ThoughtWorks，元气兔担任项目开发，技术总监等职位，接触过的项目种类繁多，有Web，Mobile，医疗器械，社交网络，大数据存储等。

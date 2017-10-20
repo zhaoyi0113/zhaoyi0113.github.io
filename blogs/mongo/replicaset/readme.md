@@ -118,6 +118,6 @@ Write Concern定义了MongoDB在进行一次写操作时需要作出的确认级
 
 [Write Preference](https://docs.mongodb.com/manual/reference/write-concern/)
 
-# 作者简
+# 关于作者
 
 赵翼，毕业于北京理工大学，目前就职于SouthbankSoftware，从事NoSQL，MongoDB方面的开发工作。曾在GE，ThoughtWorks，元气兔担任项目开发，技术总监等职位，接触过的项目种类繁多，有Web，Mobile，医疗器械，社交网络，大数据存储等。
