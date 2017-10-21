@@ -96,8 +96,6 @@ SQL归来，是的，我们不希望像NoSQL那样去写大量的代码来进行
 
 # 参考文献
 
-[Why SQL is beating NoSQL](https://blog.timescale.com/why-sql-beating-nosql-what-this-means-for-future-of-data-time-series-database-348b777b847a)
-
 [SQL: The Technology That Never Left Is Back!](http://blog.memsql.com/sql-the-technology-that-never-left-is-back/)
 
 [Who took the 'no' out of NoSQL?](https://www.infoworld.com/article/3142884/analytics/who-took-the-no-out-of-nosql.html)
