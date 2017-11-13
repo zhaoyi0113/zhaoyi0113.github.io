@@ -106,9 +106,11 @@ Write Concern定义了MongoDB在进行一次写操作时需要作出的确认级
 
 # 参考文献
 
+[MongoDB的水平扩展，你做对了吗？](http://www.infoq.com/cn/articles/scale-out-mongodb)
+
 [dbKoda](https://www.dbkoda.com)
 
-[如何通过MongoDB自带的Explain功能提高检索性能？](https://mp.weixin.qq.com/s/xQniuEaUI9g3ICHsI66NRw)
+[如何通过MongoDB自带的Explain功能提高检索性能？](http://www.infoq.com/cn/articles/improve-find-performance-in-mongo)
 
 [MongoDB Docker Cluster](https://github.com/zhaoyi0113/mongo-cluster-docker)
 
