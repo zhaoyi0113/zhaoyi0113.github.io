@@ -52,6 +52,7 @@ const styles = {
     alignItems: 'flex-start',
     width: '80%',
     alignSelf: 'center',
+    overflowX: 'auto',
   },
   article: {
     display: 'flex',
@@ -59,6 +60,7 @@ const styles = {
     alignItems: 'center',
     margin: 30,
     flex: 1,
+    minWidth: 300,
     title: {
       color: 'rgb(16,165,135)',
       textAlign: 'center',
