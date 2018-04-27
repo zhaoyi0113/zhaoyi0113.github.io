@@ -70,6 +70,7 @@ jobs:
       GH_EMAIL: "zhaoyi0113@gmail.com"
       GH_NAME: "zhaoyi"
     steps:
+      - checkout
       - run:
           name: 'deploy to github pages'
           command: bash .circleci/deploy-ghpages.sh
