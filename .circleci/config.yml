@@ -32,13 +32,15 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-        
+      - run: yarn run build
       # run tests!
       - run: yarn test
   deploy:
     machine:
       enabled: true
     working_directory: ~/circleci-workflows
+    environment:
+      HEROKU_APP: "joeyyizhao"
     steps:
       - checkout
       - add_ssh_keys:  # add key from CircleCI account based on fingerprint
@@ -47,6 +49,12 @@ jobs:
       - run:
           name: Run Setup Script
           command: bash .circleci/setup-heroku.sh
+      # - run:
+      #     name: Build
+      #     command: yarn install
+      # - run:
+      #     name: package
+      #     command: yarn run build
       - run:
           name: Deploy Master to Heroku
           command: |  # this command is framework-dependent and may vary
