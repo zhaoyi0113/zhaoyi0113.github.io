@@ -5,6 +5,9 @@
 # Used with their MIT license https://github.com/eldarlabs/ghpages-deploy-script/blob/master/LICENSE
 
 ls
+git config --global user.email "$GH_EMAIL" > /dev/null 2>&1
+git config --global user.name "$GH_NAME" > /dev/null 2>&1
+
 yarn install
 yarn run build
 
