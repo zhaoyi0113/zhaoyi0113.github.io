@@ -9,7 +9,7 @@
     "test": "yarn run lint",
     "clean": "rimraf dist",
     "build": "rimraf images && webpack --config webpack.config.js",
-    "heroku-postbuild": "yarn install && yarn run start"
+    "heroku-postbuild": "yarn install"
   },
   "author": "Zhao Yi(zhaoyi0113@gmail.com)",
   "dependencies": {
