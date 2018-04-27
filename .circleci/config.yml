@@ -71,8 +71,8 @@ jobs:
       GH_NAME: "zhaoyi"
     steps:
       - run:
-        name: 'deploy to github pages'
-        command: bash .circleci/deploy-ghpages.sh
+          name: 'deploy to github pages'
+          command: bash .circleci/deploy-ghpages.sh
 workflows:
   version: 2
   build-deploy:
