@@ -31,7 +31,7 @@ const Project = ({project}) => (
     <div
       style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}
     >
-      {project.images.map ((image, i) => {
+      {project.images && project.images.map ((image, i) => {
         const id = i;
         return <img key={id} style={styles.project.image} src={image} />;
       })}
@@ -100,10 +100,6 @@ export default class ProfileList extends Component {
 
   render () {
     const {recentProjects} = this.props.store;
-    // const project = _.filter (
-    //   recentProjects,
-    //   o => o.id == this.props.params.id
-    // )[0];
     const project = recentProjects[this.state.pageIdx];
     return (
       <div id="profile-list" className="profile-list" style={styles.root}>

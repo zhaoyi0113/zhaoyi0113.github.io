@@ -4,13 +4,13 @@ export default class Store {
   @observable navigationItems = observable([{
       id: 0,
       icon: '../assets/img/nav-work-charcoal@2x.png',
-      link: '',
+      link: '/pl',
       name: 'WORK',
     },
     {
       id: 1,
       icon: '../assets/img/nav-about-charcoal@2x.png',
-      link: '',
+      link: '/',
       name: 'ABOUT',
     },
     {
@@ -60,7 +60,7 @@ export default class Store {
     {
       id: 4,
       title: 'MongoDB的水平扩展，你做对了吗？',
-      description: '当人们一开始使用数据库系统的时候，所有数据都是跑在一台服务器上，即所谓的单机数据库服务器。在企业级应用中，我们会搭建一台应用程序服务器，一般它会被运行在一台服务器或者工作站上，大多数情况下采用 Linux／Unix／Windows 操作系统，也有人把这样的服务器称之为应用程序服务器。顾名思义，他的作用是处理复杂的业务逻辑。但是一点需要注意的是，在这样的构架中，这台应用程序服务器不会存储任何业务数据，也就是说，他只负责逻辑运算，处理用户请求，真正存放数据的地方是前面提到的那台数据库服务器。应用程序服务器将用户的请求转换成数据库语言（通常是 SQL），运行在数据库中，从而进行数据的增删改查。数据库服务器不会对外直接开放，管理人员也不允许直接在数据库层面操作数据。所有的操作都会经过应用程序服务器来完成。应用程序层、数据库层再加上 UI 层，被称为传统的 Web 三层构架。',
+      description: '当人们一开始使用数据库系统的时候，所有数据都是跑在一台服务器上，即所谓的单机数据库服务器。在企业级应用中，我们会搭建一台应用程序服务器，一般它会被运行在一台服务器或者工作站上，大多数情况下采用 Linux／Unix／Windows 操作系统，也有人把这样的服务器称之为应用程序服务器。顾名思义，他的作用是处理复杂的业务逻辑。但是一点需要注意的是，在这样的构架中，这台应用程序服务器不会存储任何业务数据...',
       link: 'http://www.infoq.com/cn/articles/scale-out-mongodb?utm_source=infoq&utm_campaign=user_page&utm_medium=link'
     },
     {
@@ -72,7 +72,7 @@ export default class Store {
     {
       id: 6,
       title: '如何通过MongoDB自带的Explain功能提高检索性能？',
-      description: '每当大家谈到数据库检索性能的时候，首先提及的就是索引，对此，MongoDB 也不例外。就像大家读一本书，或者查字典一样，索引是书的目录，让你方便的能够在上百页的书中找到自己感兴趣的内容。那么，有多少人了解索引的底层原理呢？相信大部分人，至少与数据库打过交道的都知道如何使用，但是牵扯到底层的技术实现可能研究过的人就不多了。在此我给大家一个 MongoDB 索引的底层实现原理分析，之后会根据一个具体实例来看看如何通过索引提高 collection 的检索性能。',
+      description: '每当大家谈到数据库检索性能的时候，首先提及的就是索引，对此，MongoDB 也不例外。就像大家读一本书，或者查字典一样，索引是书的目录，让你方便的能够在上百页的书中找到自己感兴趣的内容。那么，有多少人了解索引的底层原理呢？相信大部分人，至少与数据库打过交道的都知道如何使用，但是牵扯到底层的技术实现可能研究过的人就不多了...',
       link: 'http://www.infoq.com/cn/articles/improve-find-performance-in-mongo?utm_source=infoq&utm_campaign=user_page&utm_medium=link'
     },
     {
@@ -83,21 +83,16 @@ export default class Store {
     }
   ]);
 
-  @observable recentProjects = observable([{
-      id: 1,
-      name: 'Go2Nurse',
-      type: 'Mobile Application',
-      image: '../assets/projects/cooltoo.png',
-      link: 'http://www.cool-too.com/',
-      description: 'This project is to build an Android and iOS App for patients to get services \
-      from nurses.Hospital can publish their nursing services on this app and \
-      patients can submit orders to purchase these nursing services.',
-      images: [
-        '../assets/projects/cooltoo.png',
-        '../assets/projects/cooltoo-2.png',
-        '../assets/projects/cooltoo-3.png',
-      ],
-      tech: 'Java SpringBoot ReactJS MySQL AWS',
+  @observable recentProjects = observable([
+    {
+      id: 100,
+      name: 'The Big Crunch',
+      type: 'Web Application',
+      image: '../assets/projects/bigcrunch.png',
+      images: ['../assets/projects/bigcrunch.png'],
+      link: 'https://123456.bigcrunch.io/',
+      description: 'The Big Crunch is a real-time interactive data publishing platform. It helps companies get the most out of the numerical-based information they are uploading to their websites by streamlining the process specifically for numbers, calculations and visualisations. That information can then be viewed, used, collaborated around, subscribed to, purchased, or built upon by others thus extending the reach and life of that data.',
+      tech: 'Javascript, NodeJS, Elixir, Redis, Nginx, Rocksdb',
     },
     {
       id: 2,
@@ -112,6 +107,22 @@ export default class Store {
       ],
       description: 'A modern open source database development tool.',
       tech: 'NodeJS, FeathersJS, ReactJS, Mobx, MongoDB, Electron',
+    },
+    {
+      id: 1,
+      name: 'Go2Nurse',
+      type: 'Mobile Application',
+      image: '../assets/projects/cooltoo.png',
+      link: 'http://www.cool-too.com/',
+      description: 'This project is to build an Android and iOS App for patients to get services \
+      from nurses.Hospital can publish their nursing services on this app and \
+      patients can submit orders to purchase these nursing services.',
+      images: [
+        '../assets/projects/cooltoo.png',
+        '../assets/projects/cooltoo-2.png',
+        '../assets/projects/cooltoo-3.png',
+      ],
+      tech: 'Java SpringBoot ReactJS MySQL AWS',
     },
     {
       id: 3,

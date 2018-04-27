@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
+import { Link } from 'react-router';
 
 const NavigationItem = ({icon, onClick, tooltip}) => {
   const style = {
@@ -27,12 +28,14 @@ const NavigationItem = ({icon, onClick, tooltip}) => {
 const NavigationBar = ({navigationItems}) => (
   <div>
     {navigationItems.map (item => (
-      <NavigationItem
-        key={item.id}
-        icon={item.icon}
-        tooltip={item.name}
-        onClick={item.onClick}
-      />
+      <Link to={item.link}>
+        <NavigationItem
+          key={item.id}
+          icon={item.icon}
+          tooltip={item.name}
+          onClick={item.onClick}
+        />
+      </Link>
     ))}
   </div>
 );
