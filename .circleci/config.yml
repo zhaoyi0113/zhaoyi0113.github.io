@@ -40,7 +40,7 @@ jobs:
       enabled: true
     working_directory: ~/circleci-workflows
     environment:
-      HEROKU_APP: "joeyyizhao"
+      HEROKU_APP_NAME: "joeyyizhao"
     steps:
       - checkout
       - add_ssh_keys:  # add key from CircleCI account based on fingerprint
