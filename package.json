@@ -4,11 +4,12 @@
   "description": "Profile for Zhao Yi",
   "main": "index.jsx",
   "scripts": {
-    "start": "npm run clean && node server.js",
+    "start": "yarn run clean && node server.js",
     "lint": "eslint src ",
-    "test": "npm run lint",
+    "test": "yarn run lint",
     "clean": "rimraf dist",
-    "build": "rimraf images && webpack --config webpack.config.js"
+    "build": "rimraf images && webpack --config webpack.config.js",
+    "heroku-postbuild": "yarn install && yarn run start"
   },
   "author": "Zhao Yi(zhaoyi0113@gmail.com)",
   "dependencies": {
