@@ -34,6 +34,8 @@ fi
 
 # copy over or recompile the new site
 #cp -a "../${siteSource}/." .
+yarn install
+yarn run build
 
 # stage any changes and new files
 git add -A
