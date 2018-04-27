@@ -78,9 +78,10 @@ workflows:
   build-deploy:
     jobs:
       - build
-      - deploy-heroku:  # only deploy when master successfully builds
+      - deploy-ghpages:  # only deploy when master successfully builds
           requires:
             - build
           filters:
             branches:
               only: master
+
