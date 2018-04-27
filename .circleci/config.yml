@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/mongo:3.4.4
 
-    working_directory: ~/repo
+    working_directory: ~/circleci-workflows
 
     steps:
       - checkout
@@ -35,7 +35,7 @@ jobs:
       - run: yarn run build
       # run tests!
       - run: yarn test
-  deploy:
+  deploy-heroku:
     machine:
       enabled: true
     working_directory: ~/circleci-workflows
@@ -62,12 +62,23 @@ jobs:
             git push --force git@heroku.com:$HEROKU_APP_NAME.git HEAD:refs/heads/master
             heroku run python manage.py deploy
             heroku restart
+    deploy-ghpages:
+      machine:
+        enable: true
+      working_directory: ~/circleci-workflows
+      environment:
+        GH_EMAIL: "zhaoyi0113@gmail.com"
+        GH_NAME: "zhaoyi"
+      steps:
+        - run:
+          name: 'deploy to github pages'
+          command: bash .circleci/deploy-ghpages.sh
 workflows:
   version: 2
   build-deploy:
     jobs:
       - build
-      - deploy:  # only deploy when master successfully builds
+      - deploy-heroku:  # only deploy when master successfully builds
           requires:
             - build
           filters:

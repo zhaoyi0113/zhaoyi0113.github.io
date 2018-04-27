@@ -4,7 +4,7 @@
   "description": "Profile for Zhao Yi",
   "main": "index.jsx",
   "scripts": {
-    "start": "yarn run clean && node server.js",
+    "start": "node server.js",
     "lint": "eslint src ",
     "test": "yarn run lint",
     "clean": "rimraf dist",
