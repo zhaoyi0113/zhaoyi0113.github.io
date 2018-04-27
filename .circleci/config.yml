@@ -63,8 +63,9 @@ jobs:
             heroku run python manage.py deploy
             heroku restart
   deploy-ghpages:
-    machine:
-      enable: true
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:7.10
     working_directory: ~/circleci-workflows
     environment:
       GH_EMAIL: "zhaoyi0113@gmail.com"
