@@ -105,7 +105,7 @@ export default class Store {
         '../assets/projects/dbkoda-3.png',
         '../assets/projects/dbkoda-4.png',
       ],
-      description: 'A modern open source database development tool.',
+      description: 'dbKoda is a rich MongoDB code editor with syntax highlighting, code completion, formatting and more. Graphical interface to MongoDB administration and query commands. Quickly switch between multiple MongoDB servers.',
       tech: 'NodeJS, FeathersJS, ReactJS, Mobx, MongoDB, Electron',
     },
     {
