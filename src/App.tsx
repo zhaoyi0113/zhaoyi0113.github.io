@@ -112,6 +112,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub"
+            title="GitHub — zhaoyi0113"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
           >
             <IconGitHub className="h-5 w-5" />
@@ -121,6 +122,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="Medium"
+            title="Medium — @zhaoyi0113"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-emerald-500/40 hover:text-emerald-300"
           >
             <IconMedium className="h-5 w-5" />
@@ -130,6 +132,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="LinkedIn"
+            title="LinkedIn — recommendations & experience"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-fuchsia-500/40 hover:text-fuchsia-300"
           >
             <IconLinkedIn className="h-5 w-5" />
@@ -574,7 +577,8 @@ function Footer() {
             href={profile.links.github}
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub"
+            aria-label="GitHub profile (zhaoyi0113)"
+            title="GitHub — zhaoyi0113"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconGitHub className="h-5 w-5" />
@@ -583,7 +587,8 @@ function Footer() {
             href={profile.links.medium}
             target="_blank"
             rel="noreferrer"
-            aria-label="Medium"
+            aria-label="Medium blog (@zhaoyi0113)"
+            title="Medium — @zhaoyi0113"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconMedium className="h-5 w-5" />
@@ -592,7 +597,8 @@ function Footer() {
             href={profile.links.linkedin}
             target="_blank"
             rel="noreferrer"
-            aria-label="LinkedIn"
+            aria-label="LinkedIn profile"
+            title="LinkedIn — recommendations & experience"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconLinkedIn className="h-5 w-5" />
