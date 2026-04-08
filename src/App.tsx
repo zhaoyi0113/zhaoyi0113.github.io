@@ -112,7 +112,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub"
-            title="GitHub — zhaoyi0113"
+            title="GitHub"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
           >
             <IconGitHub className="h-5 w-5" />
@@ -122,7 +122,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="Medium"
-            title="Medium — @zhaoyi0113"
+            title="Medium"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-emerald-500/40 hover:text-emerald-300"
           >
             <IconMedium className="h-5 w-5" />
@@ -132,7 +132,7 @@ function Header() {
             target="_blank"
             rel="noreferrer"
             aria-label="LinkedIn"
-            title="LinkedIn — recommendations & experience"
+            title="LinkedIn"
             className="rounded-lg border border-white/10 bg-white/[0.03] p-2 text-zinc-400 transition-colors hover:border-fuchsia-500/40 hover:text-fuchsia-300"
           >
             <IconLinkedIn className="h-5 w-5" />
