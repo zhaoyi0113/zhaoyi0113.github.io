@@ -77,6 +77,14 @@ function Header() {
             GitHub
           </a>
           <a
+            href={profile.links.medium}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 font-mono text-xs text-zinc-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-300"
+          >
+            Medium
+          </a>
+          <a
             href={profile.links.linkedin}
             target="_blank"
             rel="noreferrer"
