@@ -577,8 +577,8 @@ function Footer() {
             href={profile.links.github}
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub profile (zhaoyi0113)"
-            title="GitHub — zhaoyi0113"
+            aria-label="GitHub"
+            title="GitHub"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconGitHub className="h-5 w-5" />
@@ -587,8 +587,8 @@ function Footer() {
             href={profile.links.medium}
             target="_blank"
             rel="noreferrer"
-            aria-label="Medium blog (@zhaoyi0113)"
-            title="Medium — @zhaoyi0113"
+            aria-label="Medium"
+            title="Medium"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconMedium className="h-5 w-5" />
@@ -597,8 +597,8 @@ function Footer() {
             href={profile.links.linkedin}
             target="_blank"
             rel="noreferrer"
-            aria-label="LinkedIn profile"
-            title="LinkedIn — recommendations & experience"
+            aria-label="LinkedIn"
+            title="LinkedIn"
             className="text-zinc-500 transition-colors hover:text-zinc-300"
           >
             <IconLinkedIn className="h-5 w-5" />
