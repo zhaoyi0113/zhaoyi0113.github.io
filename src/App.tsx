@@ -128,12 +128,29 @@ function Hero() {
           <span className="text-cyan-400/90">▸</span> Team Lead @ Zeller ·
           payments · platform engineering
         </p>
-        <h1 className="max-w-4xl text-4xl font-semibold leading-[1.1] tracking-tight text-zinc-50 md:text-6xl md:leading-[1.08]">
-          <span className="text-gradient">{profile.name}</span>
-          <span className="mt-2 block text-zinc-400 md:mt-3">
-            {profile.title}
-          </span>
-        </h1>
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between md:gap-10 lg:gap-12">
+          <h1 className="max-w-4xl min-w-0 text-4xl font-semibold leading-[1.1] tracking-tight text-zinc-50 md:text-6xl md:leading-[1.08]">
+            <span className="text-gradient">{profile.name}</span>
+            <span className="mt-2 block text-zinc-400 md:mt-3">
+              {profile.title}
+            </span>
+          </h1>
+          <a
+            href={profile.links.github}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 self-start md:pt-1"
+            aria-label={`${profile.name} on GitHub`}
+          >
+            <img
+              src={profile.avatarUrl}
+              alt=""
+              width={160}
+              height={160}
+              className="h-28 w-28 rounded-2xl border border-white/10 bg-zinc-900/50 object-cover shadow-[0_0_40px_-12px_rgba(34,211,238,0.25)] ring-1 ring-inset ring-white/10 transition hover:ring-cyan-400/35 md:h-36 md:w-36"
+            />
+          </a>
+        </div>
         <p className="mt-8 max-w-2xl text-lg leading-relaxed text-zinc-400 md:text-xl">
           {profile.tagline}
         </p>

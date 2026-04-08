@@ -1,5 +1,6 @@
 export const profile = {
   name: 'Joey Yi Zhao',
+  avatarUrl: 'https://avatars.githubusercontent.com/u/3355579?v=4&s=320',
   title: 'Team Lead · Software Engineer',
   tagline:
     'Building serverless payments infrastructure, event-sourced systems, and high-scale APIs — with a focus on clarity, reliability, and craft.',
