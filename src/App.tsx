@@ -177,8 +177,8 @@ function About() {
           subtitle="From healthcare imaging platforms to fintech at scale — shipping systems that teams can evolve safely."
         />
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset] backdrop-blur-sm md:p-8">
-            <pre className="font-mono text-[13px] leading-relaxed text-zinc-400">
+          <div className="min-w-0 rounded-2xl border border-white/[0.08] bg-[#0c1222]/80 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset] backdrop-blur-sm md:p-8">
+            <pre className="whitespace-pre-wrap break-words font-mono text-[13px] leading-relaxed text-zinc-400">
               <span className="text-zinc-600">$ </span>
               <span className="text-cyan-400">cat</span> ./bio.txt{'\n\n'}
               <span className="text-zinc-300">
@@ -190,7 +190,7 @@ function About() {
               </span>
             </pre>
           </div>
-          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-white/[0.08] bg-gradient-to-br from-violet-950/40 to-[#0c1222] p-6 md:p-8">
+          <div className="flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-white/[0.08] bg-gradient-to-br from-violet-950/40 to-[#0c1222] p-6 md:p-8">
             <div>
               <p className="font-mono text-xs uppercase tracking-widest text-fuchsia-400/80">
                 Links
